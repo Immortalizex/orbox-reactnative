@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "newArchEnabled": true,
+    "name": "OrBox Fit",
+    "slug": "orbox-fit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.orbox.fit"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0a0a"
+      },
+      "package": "com.orbox.fit"
+    },
+    "extra": {
+      "apiUrl": "${EXPO_PUBLIC_API_URL:-/api}",
+      "appId": "${EXPO_PUBLIC_APP_ID:-default}"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
+  }
+}

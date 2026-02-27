@@ -1,0 +1,435 @@
+import { getStoredToken, setStoredToken, clearStoredToken } from '../lib/appParams';
+import { appParams, loadAppParams } from '../lib/appParams';
+
+let cachedToken = null;
+
+export async function getToken() {
+  if (cachedToken) return cachedToken;
+  cachedToken = await getStoredToken();
+  return cachedToken;
+}
+
+export async function setToken(token) {
+  cachedToken = token;
+  if (token) await setStoredToken(token);
+  else await clearStoredToken();
+}
+
+function getBaseUrl() {
+  const base = appParams.appBaseUrl || '/api';
+  if (base.startsWith('http')) return base.replace(/\/$/, '');
+  if (typeof global !== 'undefined' && global.__API_BASE__) {
+    return global.__API_BASE__.replace(/\/$/, '');
+  }
+  return base;
+}
+
+async function request(path, options = {}) {
+  const base = getBaseUrl();
+  const url = path.startsWith('http') ? path : `${base}${path.startsWith('/') ? path : `/${path}`}`;
+  const token = await getToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(appParams.appId ? { 'X-App-Id': appParams.appId } : {}),
+    ...options.headers,
+  };
+  const res = await fetch(url, { ...options, headers });
+  if (!res.ok) {
+    const err = new Error(res.statusText || 'Request failed');
+    err.status = res.status;
+    try {
+      err.data = await res.json();
+    } catch {
+      err.data = { message: await res.text() };
+    }
+    throw err;
+  }
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) return res.json();
+  return res.text();
+}
+
+function asArray(data) {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === 'object' && Array.isArray(data.data)) return data.data;
+  return [];
+}
+
+function buildQuery(params, sort, limit) {
+  const search = new URLSearchParams();
+  if (params && typeof params === 'object') {
+    Object.entries(params).forEach(([k, v]) => {
+      if (v != null && v !== '') search.set(k, String(v));
+    });
+  }
+  if (sort) search.set('sort', sort);
+  if (limit != null) search.set('limit', String(limit));
+  const q = search.toString();
+  return q ? `?${q}` : '';
+}
+
+function createEntity(name) {
+  return {
+    async list(sort, limit) {
+      const q = buildQuery({}, sort, limit);
+      const data = await request(`/entities/${name}${q}`);
+      return asArray(data);
+    },
+    async filter(filters = {}, sort, limit) {
+      const q = buildQuery(filters, sort, limit);
+      const data = await request(`/entities/${name}${q}`);
+      return asArray(data);
+    },
+    async create(data) {
+      return request(`/entities/${name}`, { method: 'POST', body: JSON.stringify(data) });
+    },
+    async update(id, data) {
+      return request(`/entities/${name}/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+    },
+    async delete(id) {
+      return request(`/entities/${name}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    },
+  };
+}
+
+/** Normalize backend (camelCase) to include snake_case for app compatibility */
+function normalizeBox(b) {
+  if (!b) return b;
+  return {
+    ...b,
+    price_per_hour: b.pricePerHour ?? b.price_per_hour,
+    opening_hours: b.openingHours ?? b.opening_hours,
+    zip_code: b.zipCode ?? b.zip_code,
+    created_at: b.createdAt ?? b.created_at,
+    updated_at: b.updatedAt ?? b.updated_at,
+    access_tolerance_minutes: b.accessToleranceMinutes ?? b.access_tolerance_minutes,
+    lock_api_url: b.lockApiUrl ?? b.lock_api_url,
+    lock_api_key: b.lockApiKey ?? b.lock_api_key,
+  };
+}
+
+function normalizeReservation(r) {
+  if (!r) return r;
+  const box = r.box ? normalizeBox(r.box) : undefined;
+  return {
+    ...r,
+    box_id: r.boxId ?? r.box_id,
+    user_id: r.userId ?? r.user_id,
+    personal_id: r.personalId ?? r.personal_id,
+    start_time: r.startTime ?? r.start_time,
+    end_time: r.end_time ?? r.endTime,
+    total_amount: r.totalAmount ?? r.total_amount,
+    payment_id: r.paymentId ?? r.payment_id,
+    created_at: r.createdAt ?? r.created_at,
+    updated_at: r.updatedAt ?? r.updated_at,
+    box,
+  };
+}
+
+function normalizePersonal(p) {
+  if (!p) return p;
+  return {
+    ...p,
+    user_id: p.userId ?? p.user_id,
+    price_per_session: p.pricePerSession ?? p.price_per_session,
+    avatar_url: p.avatarUrl ?? p.avatar_url,
+    created_at: p.createdAt ?? p.created_at,
+    updated_at: p.updatedAt ?? p.updated_at,
+  };
+}
+
+/** Backend (NestJS) API – used when appBaseUrl points to real backend */
+const backend = {
+  boxes: {
+    async list(params = {}) {
+      const q = new URLSearchParams();
+      if (params.status) q.set('status', params.status);
+      if (params.city) q.set('city', params.city);
+      if (params.lat) q.set('lat', params.lat);
+      if (params.lng) q.set('lng', params.lng);
+      if (params.radiusKm) q.set('radiusKm', params.radiusKm);
+      const query = q.toString() ? `?${q.toString()}` : '';
+      const data = await request(`/boxes${query}`);
+      const arr = Array.isArray(data) ? data : asArray(data);
+      return arr.map(normalizeBox);
+    },
+    async get(id) {
+      const b = await request(`/boxes/${encodeURIComponent(id)}`);
+      return normalizeBox(b);
+    },
+    async create(body) {
+      const b = await request('/boxes', { method: 'POST', body: JSON.stringify(body) });
+      return normalizeBox(b);
+    },
+    async update(id, body) {
+      const b = await request(`/boxes/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      });
+      return normalizeBox(b);
+    },
+  },
+  reservations: {
+    async my(status) {
+      const query = status ? `?status=${encodeURIComponent(status)}` : '';
+      const data = await request(`/reservations/my${query}`);
+      const arr = Array.isArray(data) ? data : asArray(data);
+      return arr.map(normalizeReservation);
+    },
+    async create(dto) {
+      const body = {
+        boxId: dto.boxId ?? dto.box_id,
+        personalId: dto.personalId ?? dto.personal_id,
+        date: dto.date,
+        startTime: dto.startTime ?? dto.start_time,
+        endTime: dto.endTime ?? dto.end_time,
+        type: dto.type || 'Solo',
+      };
+      const r = await request('/reservations', { method: 'POST', body: JSON.stringify(body) });
+      return normalizeReservation(r);
+    },
+    async get(id) {
+      const r = await request(`/reservations/${encodeURIComponent(id)}`);
+      return normalizeReservation(r);
+    },
+    async cancel(id) {
+      const r = await request(`/reservations/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
+      return normalizeReservation(r);
+    },
+  },
+  personals: {
+    async list(params = {}) {
+      const q = new URLSearchParams();
+      if (params.level) q.set('level', params.level);
+      if (params.approved !== undefined) q.set('approved', String(params.approved));
+      const query = q.toString() ? `?${q.toString()}` : '';
+      const data = await request(`/personals${query}`);
+      const arr = Array.isArray(data) ? data : asArray(data);
+      return arr.map(normalizePersonal);
+    },
+    async get(id) {
+      const p = await request(`/personals/${encodeURIComponent(id)}`);
+      return normalizePersonal(p);
+    },
+    async create(body) {
+      const p = await request('/personals', { method: 'POST', body: JSON.stringify(body) });
+      return normalizePersonal(p);
+    },
+    async update(id, body) {
+      const p = await request(`/personals/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      });
+      return normalizePersonal(p);
+    },
+  },
+};
+
+function useBackend() {
+  const base = appParams.appBaseUrl || '/api';
+  return typeof base === 'string' && base.startsWith('http');
+}
+
+async function authRequest(path, body) {
+  const base = getBaseUrl();
+  const url = `${base}${path.startsWith('/') ? path : `/${path}`}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = new Error(res.statusText || 'Request failed');
+    err.status = res.status;
+    try {
+      err.data = await res.json();
+    } catch {
+      err.data = { message: await res.text() };
+    }
+    throw err;
+  }
+  return res.json();
+}
+
+export const api = {
+  auth: {
+    async me() {
+      return request('/auth/me');
+    },
+    async login(email, password) {
+      const data = await authRequest('/auth/login', { email, password });
+      const token = data.accessToken ?? data.access_token ?? data.token;
+      const user = data.user ?? data;
+      if (token) await setToken(token);
+      return user;
+    },
+    async signup(email, password, full_name, phone) {
+      const body = { email, password, full_name };
+      if (phone != null && phone !== '') body.phone = phone;
+      const data = await authRequest('/auth/signup', body);
+      const token = data.accessToken ?? data.access_token ?? data.token;
+      const user = data.user ?? data;
+      if (token) await setToken(token);
+      return user;
+    },
+    async logout() {
+      await setToken(null);
+    },
+  },
+  entities: {
+    Box: (() => {
+      const generic = createEntity('Box');
+      return {
+        async list(sort, limit) {
+          if (useBackend()) return backend.boxes.list({});
+          return generic.list(sort, limit);
+        },
+        async filter(filters = {}, sort, limit) {
+          if (useBackend()) {
+            if (filters.id) {
+              const b = await backend.boxes.get(filters.id);
+              return b ? [b] : [];
+            }
+            return backend.boxes.list({ status: filters.status, city: filters.city, lat: filters.lat, lng: filters.lng, radiusKm: filters.radiusKm });
+          }
+          return generic.filter(filters, sort, limit);
+        },
+        async create(data) {
+          if (useBackend()) return backend.boxes.create(data);
+          return generic.create(data);
+        },
+        async update(id, data) {
+          if (useBackend()) return backend.boxes.update(id, data);
+          return generic.update(id, data);
+        },
+        async delete(id) {
+          return generic.delete(id);
+        },
+      };
+    })(),
+    Booking: (() => {
+      const generic = createEntity('Booking');
+      return {
+        async list(sort, limit) {
+          if (useBackend()) return backend.reservations.my();
+          return generic.list(sort, limit);
+        },
+        async filter(filters = {}, sort, limit) {
+          if (useBackend()) {
+            const list = await backend.reservations.my(filters.status);
+            if (filters.box_id) return list.filter((r) => (r.boxId || r.box_id) === filters.box_id);
+            if (filters.date) return list.filter((r) => r.date === filters.date);
+            return list;
+          }
+          return generic.filter(filters, sort, limit);
+        },
+        async create(data) {
+          if (useBackend()) {
+            return backend.reservations.create({
+              box_id: data.box_id,
+              boxId: data.boxId,
+              date: data.date,
+              start_time: data.start_time,
+              startTime: data.startTime,
+              end_time: data.end_time,
+              endTime: data.endTime,
+              type: data.type || 'Solo',
+              personal_id: data.personal_id,
+              personalId: data.personalId,
+            });
+          }
+          return generic.create(data);
+        },
+        async update(id, data) {
+          if (useBackend() && data && (data.status === 'cancelled' || data.status === 'canceled')) {
+            return backend.reservations.cancel(id);
+          }
+          return generic.update(id, data);
+        },
+        async delete(id) {
+          return generic.delete(id);
+        },
+      };
+    })(),
+    User: createEntity('User'),
+    Personal: (() => {
+      const generic = createEntity('Personal');
+      return {
+        async list(sort, limit) {
+          if (useBackend()) return backend.personals.list({});
+          return generic.list(sort, limit);
+        },
+        async filter(filters = {}, sort, limit) {
+          if (useBackend()) {
+            if (filters.id) {
+              const p = await backend.personals.get(filters.id);
+              return p ? [p] : [];
+            }
+            return backend.personals.list({ level: filters.level, approved: filters.approved ?? (filters.status === 'active' ? true : undefined) });
+          }
+          return generic.filter(filters, sort, limit);
+        },
+        async create(data) {
+          if (useBackend()) return backend.personals.create(data);
+          return generic.create(data);
+        },
+        async update(id, data) {
+          if (useBackend()) return backend.personals.update(id, data);
+          return generic.update(id, data);
+        },
+        async delete(id) {
+          return generic.delete(id);
+        },
+      };
+    })(),
+    PlantaoShift: createEntity('PlantaoShift'),
+    PersonalReview: createEntity('PersonalReview'),
+    SupportTicket: createEntity('SupportTicket'),
+  },
+  backend,
+  integrations: {
+    Core: {
+      async UploadFile({ file }) {
+        const base = getBaseUrl();
+        const token = await getToken();
+        const formData = new FormData();
+        formData.append('file', {
+          uri: file.uri,
+          type: file.mimeType || 'image/jpeg',
+          name: file.fileName || 'image.jpg',
+        });
+        const headers = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+        if (appParams.appId) headers['X-App-Id'] = appParams.appId;
+        const res = await fetch(`${base}/upload`, { method: 'POST', body: formData, headers });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        return { file_url: data.file_url || data.url || file.uri };
+      },
+    },
+  },
+  async getPublicSettings(appId) {
+    const base = getBaseUrl();
+    const token = await getToken();
+    const url = `${base}/apps/public/public-settings/by-id/${encodeURIComponent(appId || appParams.appId)}`;
+    const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(appParams.appId ? { 'X-App-Id': appParams.appId } : {}) };
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      const err = new Error(res.statusText || 'Request failed');
+      err.status = res.status;
+      try {
+        err.data = await res.json();
+      } catch {
+        err.data = { message: await res.text() };
+      }
+      throw err;
+    }
+    return res.json();
+  },
+};
+
+export default api;
