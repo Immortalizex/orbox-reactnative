@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { OrBoxLogoFull } from '../components/OrBoxLogo';
 
 export default function AppHeader({ isAdmin }) {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { user, logout } = useAuth();
 
@@ -16,7 +18,7 @@ export default function AppHeader({ isAdmin }) {
   };
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top }]}>
       <TouchableOpacity onPress={() => navigation.navigate('Main')}>
         <OrBoxLogoFull height={32} />
       </TouchableOpacity>
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    height: 56,
+    minHeight: 56,
     backgroundColor: 'rgba(10,10,10,0.9)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.05)',
