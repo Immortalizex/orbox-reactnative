@@ -6,14 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Linking,
 } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useQuery } from '@tanstack/react-query';
-import { useRootNavigation } from '../hooks/useRootNavigation';
 import { api } from '../api/client';
 import BoxCard from '../components/BoxCard';
 import { Ionicons } from '@expo/vector-icons';
+import ExploreMapView from './ExploreMapView';
 
 export default function ExploreMapScreen() {
   const rootNav = useRootNavigation();
@@ -74,26 +72,7 @@ export default function ExploreMapScreen() {
       </View>
 
       {view === 'map' ? (
-        <View style={styles.mapWrap}>
-          <MapView
-            style={styles.map}
-            provider={PROVIDER_DEFAULT}
-            region={region}
-            mapType="mutedStandard"
-          >
-            {filtered
-              .filter((b) => b.latitude && b.longitude)
-              .map((box) => (
-                <Marker
-                  key={box.id}
-                  coordinate={{ latitude: box.latitude, longitude: box.longitude }}
-                  title={box.name}
-                  description={box.address}
-                  onCalloutPress={() => rootNav.navigate('BookBox', { boxId: box.id })}
-                />
-              ))}
-          </MapView>
-        </View>
+        <ExploreMapView filtered={filtered} region={region} />
       ) : (
         <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
           {filtered.map((box) => (
@@ -135,8 +114,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#fff',
   },
-  mapWrap: { flex: 1, minHeight: 400 },
-  map: { width: '100%', height: '100%' },
   list: { flex: 1 },
   listContent: { padding: 16, gap: 16, paddingBottom: 32 },
   empty: { textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 14, paddingVertical: 48 },

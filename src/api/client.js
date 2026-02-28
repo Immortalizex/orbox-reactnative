@@ -24,17 +24,28 @@ function getBaseUrl() {
   return base;
 }
 
+/** Normalize JWT: strip all whitespace (fixes copy-paste or encoding issues that break verification) */
+function normalizeToken(t) {
+  if (!t || typeof t !== 'string') return null;
+  const s = String(t).replace(/\s/g, '').trim();
+  return s.length > 20 && (s.startsWith('eyJ') || s.length > 50) ? s : null;
+}
+
 async function request(path, options = {}) {
   const base = getBaseUrl();
   const url = path.startsWith('http') ? path : `${base}${path.startsWith('/') ? path : `/${path}`}`;
-  const token = await getToken();
+  // Always read token from storage first; normalize (strip whitespace) so JWT verification succeeds
+  let token = await getStoredToken();
+  if (token) token = normalizeToken(token) || String(token).replace(/\s/g, '').trim() || null;
+  if (token) cachedToken = token;
+  if (!token) token = normalizeToken(await getToken()) || null;
   const headers = {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(appParams.appId ? { 'X-App-Id': appParams.appId } : {}),
     ...options.headers,
   };
-  const res = await fetch(url, { ...options, headers });
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(url, { ...options, headers, credentials: 'include' });
   if (!res.ok) {
     const err = new Error(res.statusText || 'Request failed');
     err.status = res.status;
@@ -227,6 +238,22 @@ const backend = {
       return normalizePersonal(p);
     },
   },
+  supportTickets: {
+    async my() {
+      const data = await request('/support-tickets/my');
+      return Array.isArray(data) ? data : asArray(data);
+    },
+    async create(dto) {
+      return request('/support-tickets', {
+        method: 'POST',
+        body: JSON.stringify({
+          subject: dto.subject,
+          message: dto.message,
+          category: dto.category || 'general',
+        }),
+      });
+    },
+  },
 };
 
 function useBackend() {
@@ -262,18 +289,28 @@ export const api = {
     },
     async login(email, password) {
       const data = await authRequest('/auth/login', { email, password });
-      const token = data.accessToken ?? data.access_token ?? data.token;
-      const user = data.user ?? data;
-      if (token) await setToken(token);
+      const payload = data.data ?? data;
+      const token = payload.accessToken ?? payload.access_token ?? payload.token ?? data.accessToken ?? data.access_token ?? data.token;
+      const user = payload.user ?? data.user ?? data;
+      const tokenStr = token ? (String(token).replace(/\s/g, '').trim() || null) : null;
+      if (tokenStr && tokenStr.length > 20) {
+        cachedToken = tokenStr;
+        await setStoredToken(tokenStr);
+      }
       return user;
     },
     async signup(email, password, full_name, phone) {
       const body = { email, password, full_name };
       if (phone != null && phone !== '') body.phone = phone;
       const data = await authRequest('/auth/signup', body);
-      const token = data.accessToken ?? data.access_token ?? data.token;
-      const user = data.user ?? data;
-      if (token) await setToken(token);
+      const payload = data.data ?? data;
+      const token = payload.accessToken ?? payload.access_token ?? payload.token ?? data.accessToken ?? data.access_token ?? data.token;
+      const user = payload.user ?? data.user ?? data;
+      const tokenStr = token ? (String(token).replace(/\s/g, '').trim() || null) : null;
+      if (tokenStr && tokenStr.length > 20) {
+        cachedToken = tokenStr;
+        await setStoredToken(tokenStr);
+      }
       return user;
     },
     async logout() {
@@ -388,7 +425,35 @@ export const api = {
     })(),
     PlantaoShift: createEntity('PlantaoShift'),
     PersonalReview: createEntity('PersonalReview'),
-    SupportTicket: createEntity('SupportTicket'),
+    SupportTicket: (() => {
+      const generic = createEntity('SupportTicket');
+      return {
+        async list(sort, limit) {
+          if (useBackend()) return backend.supportTickets.my();
+          return generic.list(sort, limit);
+        },
+        async filter(filters = {}, sort, limit) {
+          if (useBackend()) return backend.supportTickets.my();
+          return generic.filter(filters, sort, limit);
+        },
+        async create(data) {
+          if (useBackend()) {
+            return backend.supportTickets.create({
+              subject: data.subject,
+              message: data.message,
+              category: data.category || 'general',
+            });
+          }
+          return generic.create(data);
+        },
+        async update(id, data) {
+          return generic.update(id, data);
+        },
+        async delete(id) {
+          return generic.delete(id);
+        },
+      };
+    })(),
   },
   backend,
   integrations: {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,11 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
@@ -24,16 +26,12 @@ const categoryLabels = {
 };
 
 export default function SupportScreen() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [category, setCategory] = useState('general');
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    api.auth.me().then(setUser).catch(() => {});
-  }, []);
 
   const { data: tickets = [] } = useQuery({
     queryKey: ['tickets', user?.email],
@@ -50,13 +48,18 @@ export default function SupportScreen() {
       setMessage('');
       setCategory('general');
     },
+    onError: (err) => {
+      const msg = err?.data?.message ?? err?.message ?? 'Falha ao enviar. Tente novamente.';
+      Alert.alert('Erro', msg);
+    },
   });
 
   const handleSubmit = () => {
     if (!subject || !message) return;
+    if (!user) return;
     createTicket.mutate({
       user_email: user.email,
-      user_name: user.full_name,
+      user_name: user.full_name ?? user.name,
       subject,
       message,
       category,
@@ -134,17 +137,22 @@ export default function SupportScreen() {
               multiline
               numberOfLines={4}
             />
+            {createTicket.isError && (
+              <Text style={styles.formError}>
+                {createTicket.error?.data?.message ?? createTicket.error?.message ?? 'Falha ao enviar.'}
+              </Text>
+            )}
             <View style={styles.formActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowForm(false)}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowForm(false)} disabled={createTicket.isPending}>
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.submitBtn, (!subject || !message) && styles.submitBtnDisabled]}
+                style={[styles.submitBtn, (!subject || !message || !user || createTicket.isPending) && styles.submitBtnDisabled]}
                 onPress={handleSubmit}
-                disabled={!subject || !message}
+                disabled={!subject || !message || !user || createTicket.isPending}
               >
                 <Ionicons name="send" size={16} color="#000" />
-                <Text style={styles.submitBtnText}>Enviar</Text>
+                <Text style={styles.submitBtnText}>{createTicket.isPending ? 'Enviando…' : 'Enviar'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -254,6 +262,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   textArea: { minHeight: 100, textAlignVertical: 'top' },
+  formError: { color: '#f87171', fontSize: 14, marginBottom: 8 },
   formActions: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end', marginTop: 8 },
   cancelBtn: { paddingVertical: 10, paddingHorizontal: 16 },
   cancelBtnText: { color: 'rgba(255,255,255,0.5)' },

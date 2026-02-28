@@ -23,5 +23,9 @@ module.exports = {
       apiUrl: process.env.EXPO_PUBLIC_API_URL || '/api',
       appId: process.env.EXPO_PUBLIC_APP_ID || 'default',
     },
+    web: {
+      bundler: 'metro',
+      favicon: './assets/icon.png',
+    },
   },
 };

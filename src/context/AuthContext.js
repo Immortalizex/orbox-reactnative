@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { api } from '../api/client';
+import { api, setToken } from '../api/client';
 import { appParams } from '../lib/appParams';
 import { getStoredToken } from '../lib/appParams';
 
@@ -45,7 +45,8 @@ export const AuthProvider = ({ children }) => {
         setAppPublicSettings(null);
       }
       const token = await getStoredToken();
-      if (token) {
+      if (token && String(token).trim().length > 20) {
+        await setToken(String(token).trim());
         await checkUserAuth();
       } else {
         setIsLoadingAuth(false);
