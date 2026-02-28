@@ -9,6 +9,7 @@ import AdminBookingsScreen from '../screens/AdminBookingsScreen';
 import AdminUsersScreen from '../screens/AdminUsersScreen';
 import AdminPersonaisScreen from '../screens/AdminPersonaisScreen';
 import AdminFinancialScreen from '../screens/AdminFinancialScreen';
+import AdminSupportTicketsScreen from '../screens/AdminSupportTicketsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -19,6 +20,7 @@ const adminScreens = [
   { name: 'AdminUsers', component: AdminUsersScreen, label: 'Usuários', icon: 'people' },
   { name: 'AdminPersonais', component: AdminPersonaisScreen, label: 'Personais', icon: 'barbell' },
   { name: 'AdminFinancial', component: AdminFinancialScreen, label: 'Financeiro', icon: 'bar-chart' },
+  { name: 'AdminSupportTickets', component: AdminSupportTicketsScreen, label: 'Tickets de Suporte', icon: 'ticket' },
 ];
 
 export default function AdminDrawer() {

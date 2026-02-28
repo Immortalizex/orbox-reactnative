@@ -253,6 +253,22 @@ const backend = {
         }),
       });
     },
+    async adminList(params = {}) {
+      const q = new URLSearchParams();
+      if (params.status) q.set('status', params.status);
+      if (params.category) q.set('category', params.category);
+      if (params.sort) q.set('sort', params.sort);
+      if (params.limit != null) q.set('limit', String(params.limit));
+      const query = q.toString();
+      const data = await request(`/support-tickets${query ? `?${query}` : ''}`);
+      return Array.isArray(data) ? data : asArray(data);
+    },
+    async adminUpdate(id, dto) {
+      return request(`/support-tickets/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: dto.status, response: dto.response }),
+      });
+    },
   },
 };
 
@@ -435,6 +451,21 @@ export const api = {
         async filter(filters = {}, sort, limit) {
           if (useBackend()) return backend.supportTickets.my();
           return generic.filter(filters, sort, limit);
+        },
+        async adminList(filters = {}, sort, limit) {
+          if (useBackend()) {
+            return backend.supportTickets.adminList({
+              status: filters.status,
+              category: filters.category,
+              sort: sort || '-created_date',
+              limit: limit ?? 200,
+            });
+          }
+          return generic.filter(filters, sort, limit);
+        },
+        async adminUpdate(id, data) {
+          if (useBackend()) return backend.supportTickets.adminUpdate(id, data);
+          return generic.update(id, data);
         },
         async create(data) {
           if (useBackend()) {
