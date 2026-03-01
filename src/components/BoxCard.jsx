@@ -42,7 +42,7 @@ export default function BoxCard({ box, onPress }) {
           <Text style={styles.hours}>
             {box.operating_hours_start || '06:00'} - {box.operating_hours_end || '23:00'}
           </Text>
-          <Text style={styles.price}>R$ {box.price_per_hour?.toFixed(2)}<Text style={styles.priceUnit}>/hora</Text></Text>
+          <Text style={styles.price}>R$ {(Number(box.price_per_hour) || 0).toFixed(2)}<Text style={styles.priceUnit}>/hora</Text></Text>
         </View>
       </View>
     </TouchableOpacity>

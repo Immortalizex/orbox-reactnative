@@ -107,12 +107,27 @@ function createEntity(name) {
   };
 }
 
+/** Coerce to number when value is a numeric string (backend often returns decimals as strings) */
+function toNum(v) {
+  if (v == null || v === '') return undefined;
+  if (typeof v === 'number' && !Number.isNaN(v)) return v;
+  const n = Number(v);
+  return Number.isNaN(n) ? undefined : n;
+}
+
 /** Normalize backend (camelCase) to include snake_case for app compatibility */
 function normalizeBox(b) {
   if (!b) return b;
+  const pricePerHour = toNum(b.pricePerHour ?? b.price_per_hour);
+  const lat = toNum(b.latitude);
+  const lng = toNum(b.longitude);
   return {
     ...b,
-    price_per_hour: b.pricePerHour ?? b.price_per_hour,
+    price_per_hour: pricePerHour ?? b.price_per_hour,
+    pricePerHour,
+    latitude: lat ?? b.latitude,
+    longitude: lng ?? b.longitude,
+    image_url: b.imageUrl ?? b.image_url,
     opening_hours: b.openingHours ?? b.opening_hours,
     zip_code: b.zipCode ?? b.zip_code,
     created_at: b.createdAt ?? b.created_at,
@@ -493,16 +508,39 @@ export const api = {
         const base = getBaseUrl();
         const token = await getToken();
         const formData = new FormData();
-        formData.append('file', {
-          uri: file.uri,
-          type: file.mimeType || 'image/jpeg',
-          name: file.fileName || 'image.jpg',
-        });
+        const fileName = file.fileName || 'image.jpg';
+        const mimeType = file.mimeType || 'image/jpeg';
+
+        // On web, FormData must receive a Blob/File; data: or blob: URIs need to be fetched first
+        if (typeof window !== 'undefined' && file.uri && (file.uri.startsWith('data:') || file.uri.startsWith('blob:'))) {
+          const blobRes = await fetch(file.uri);
+          const blob = await blobRes.blob();
+          formData.append('file', new File([blob], fileName, { type: mimeType }));
+        } else {
+          formData.append('file', {
+            uri: file.uri,
+            type: mimeType,
+            name: fileName,
+          });
+        }
+
         const headers = {};
         if (token) headers.Authorization = `Bearer ${token}`;
         if (appParams.appId) headers['X-App-Id'] = appParams.appId;
         const res = await fetch(`${base}/upload`, { method: 'POST', body: formData, headers });
-        if (!res.ok) throw new Error('Upload failed');
+        if (!res.ok) {
+          const errText = await res.text();
+          let errData;
+          try {
+            errData = JSON.parse(errText);
+          } catch {
+            errData = { message: errText || 'Upload failed' };
+          }
+          const e = new Error(errData.message || 'Upload failed');
+          e.status = res.status;
+          e.data = errData;
+          throw e;
+        }
         const data = await res.json();
         return { file_url: data.file_url || data.url || file.uri };
       },
