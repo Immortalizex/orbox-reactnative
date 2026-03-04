@@ -13,20 +13,40 @@ import { useNavigation } from '@react-navigation/native';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { OrBoxLogoFull } from '../components/OrBoxLogo';
+import { formatCpf, cpfDigits } from '../lib/cpf';
 
 export default function SignupScreen() {
   const navigation = useNavigation();
   const { setUserFromAuth } = useAuth();
-  const [fullName, setFullName] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const handleCpfChange = (text) => {
+    setCpf(formatCpf(text));
+  };
+
   const handleSubmit = async () => {
     setError('');
-    if (!fullName.trim() || !email.trim() || !password) {
-      setError('Preencha nome, e-mail e senha.');
+    const cpfOnly = cpfDigits(cpf);
+    if (cpfOnly.length !== 11) {
+      setError('Informe um CPF válido (11 dígitos).');
+      return;
+    }
+    if (!phone.trim()) {
+      setError('Informe o telefone.');
+      return;
+    }
+    if (phone.replace(/\D/g, '').length < 10) {
+      setError('Telefone deve ter pelo menos 10 dígitos.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Informe o e-mail.');
       return;
     }
     if (password.length < 6) {
@@ -35,13 +55,18 @@ export default function SignupScreen() {
     }
     setLoading(true);
     try {
-      const user = await api.auth.signup(email.trim(), password, fullName.trim());
+      const user = await api.auth.signup(
+        cpfOnly,
+        phone.trim(),
+        email.trim(),
+        password,
+        fullName.trim() || undefined
+      );
       setUserFromAuth(user);
       setLoading(false);
-      // RootNavigator switches to Main when isAuthenticated becomes true
     } catch (err) {
       setLoading(false);
-      setError(err?.data?.message || err?.message || 'Falha ao criar conta. Tente outro e-mail.');
+      setError(err?.data?.message || err?.message || 'Falha ao criar conta. Verifique os dados.');
     }
   };
 
@@ -55,15 +80,27 @@ export default function SignupScreen() {
           <OrBoxLogoFull height={40} />
         </View>
         <Text style={styles.title}>Criar conta</Text>
+        <Text style={styles.subtitle}>CPF, telefone e e-mail para autenticação</Text>
         <View style={styles.form}>
-          <Text style={styles.label}>Nome completo</Text>
+          <Text style={styles.label}>CPF</Text>
           <TextInput
             style={styles.input}
-            placeholder="Seu nome"
+            placeholder="000.000.000-00"
             placeholderTextColor="rgba(255,255,255,0.4)"
-            value={fullName}
-            onChangeText={setFullName}
-            autoComplete="name"
+            value={cpf}
+            onChangeText={handleCpfChange}
+            keyboardType="numeric"
+            maxLength={14}
+          />
+          <Text style={styles.label}>Telefone</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="(11) 99999-9999"
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            autoComplete="tel"
           />
           <Text style={styles.label}>E-mail</Text>
           <TextInput
@@ -85,6 +122,15 @@ export default function SignupScreen() {
             onChangeText={setPassword}
             secureTextEntry
             autoComplete="new-password"
+          />
+          <Text style={styles.label}>Nome completo (opcional – pode preencher depois)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Seu nome"
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            value={fullName}
+            onChangeText={setFullName}
+            autoComplete="name"
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <TouchableOpacity
@@ -114,7 +160,8 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   logoWrap: { marginBottom: 24 },
-  title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 24 },
+  title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 8 },
+  subtitle: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24 },
   form: { width: '100%', maxWidth: 340 },
   label: { fontSize: 14, fontWeight: '500', color: 'rgba(255,255,255,0.7)', marginBottom: 6 },
   input: {

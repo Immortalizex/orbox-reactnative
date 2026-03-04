@@ -16,9 +16,23 @@ try {
 
 const appJson = require('./app.json');
 
+const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyA2khpphiL_8BcsVhVpd5O2ewVmxAd-Y40rr';
+
 module.exports = {
   expo: {
     ...appJson.expo,
+    plugins: [
+      ...(appJson.expo.plugins || []),
+      ['./plugins/withGoogleMapsApiKey.js', { apiKey: googleMapsApiKey }],
+    ],
+    android: {
+      ...appJson.expo.android,
+      config: {
+        googleMaps: {
+          apiKey: googleMapsApiKey,
+        },
+      },
+    },
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL || '/api',
       appId: process.env.EXPO_PUBLIC_APP_ID || 'default',

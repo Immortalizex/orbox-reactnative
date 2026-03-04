@@ -7,6 +7,7 @@ import MainTabs from './MainTabs';
 import AdminDrawer from './AdminDrawer';
 import LoadingScreen from '../screens/LoadingScreen';
 import UserNotRegisteredScreen from '../screens/UserNotRegisteredScreen';
+import CompleteProfileScreen from '../screens/CompleteProfileScreen';
 import BookBoxScreen from '../screens/BookBoxScreen';
 import BookingConfirmedScreen from '../screens/BookingConfirmedScreen';
 import BoxSessionScreen from '../screens/BoxSessionScreen';
@@ -18,7 +19,9 @@ import PageNotFoundScreen from '../screens/PageNotFoundScreen';
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, user } = useAuth();
+
+  const profileComplete = user?.profile_complete !== false;
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return <LoadingScreen />;
@@ -38,9 +41,12 @@ export default function RootNavigator() {
       >
         {!isAuthenticated ? (
           <Stack.Screen name="Auth" component={AuthStack} />
+        ) : !profileComplete ? (
+          <Stack.Screen name="CompleteProfile" component={CompleteProfileScreen} />
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="Profile" component={CompleteProfileScreen} />
             <Stack.Screen name="Admin" component={AdminDrawer} />
             <Stack.Screen name="BookBox" component={BookBoxScreen} />
             <Stack.Screen name="BookingConfirmed" component={BookingConfirmedScreen} />

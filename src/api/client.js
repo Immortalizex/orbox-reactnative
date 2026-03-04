@@ -330,9 +330,9 @@ export const api = {
       }
       return user;
     },
-    async signup(email, password, full_name, phone) {
-      const body = { email, password, full_name };
-      if (phone != null && phone !== '') body.phone = phone;
+    async signup(cpf, phone, email, password, full_name) {
+      const body = { cpf, phone, email, password };
+      if (full_name != null && full_name.trim() !== '') body.full_name = full_name.trim();
       const data = await authRequest('/auth/signup', body);
       const payload = data.data ?? data;
       const token = payload.accessToken ?? payload.access_token ?? payload.token ?? data.accessToken ?? data.access_token ?? data.token;
@@ -346,6 +346,13 @@ export const api = {
     },
     async logout() {
       await setToken(null);
+    },
+    async updateProfile({ name, photo_url, phone }) {
+      const body = {};
+      if (name !== undefined) body.name = name;
+      if (photo_url !== undefined) body.photo_url = photo_url;
+      if (phone !== undefined) body.phone = phone;
+      return request('/auth/profile', { method: 'PATCH', body: JSON.stringify(body) });
     },
   },
   entities: {

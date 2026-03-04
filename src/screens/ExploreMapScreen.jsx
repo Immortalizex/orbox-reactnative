@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
 import BoxCard from '../components/BoxCard';
 import { Ionicons } from '@expo/vector-icons';
+import { useRootNavigation } from '../hooks/useRootNavigation';
 import ExploreMapView from './ExploreMapView';
 
 export default function ExploreMapScreen() {
@@ -29,14 +30,14 @@ export default function ExploreMapScreen() {
       b.address?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const region = boxes.length > 0 && boxes[0].latitude
-    ? {
-        latitude: boxes[0].latitude,
-        longitude: boxes[0].longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }
-    : { latitude: -23.5505, longitude: -46.6333, latitudeDelta: 0.05, longitudeDelta: 0.05 };
+  const lat = boxes.length > 0 && boxes[0].latitude != null ? Number(boxes[0].latitude) : -23.5505;
+  const lng = boxes.length > 0 && boxes[0].longitude != null ? Number(boxes[0].longitude) : -46.6333;
+  const region = {
+    latitude: lat,
+    longitude: lng,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  };
 
   return (
     <View style={styles.container}>
@@ -72,7 +73,9 @@ export default function ExploreMapScreen() {
       </View>
 
       {view === 'map' ? (
-        <ExploreMapView filtered={filtered} region={region} />
+        <View style={styles.mapContainer}>
+          <ExploreMapView filtered={filtered} region={region} />
+        </View>
       ) : (
         <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
           {filtered.map((box) => (
@@ -114,6 +117,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#fff',
   },
+  mapContainer: { flex: 1, minHeight: 300 },
   list: { flex: 1 },
   listContent: { padding: 16, gap: 16, paddingBottom: 32 },
   empty: { textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 14, paddingVertical: 48 },
