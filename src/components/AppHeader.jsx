@@ -86,6 +86,20 @@ export default function AppHeader({ isAdmin }) {
                 )}
               </TouchableOpacity>
             )}
+            {userIsAdmin && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate(isAdmin ? 'Main' : 'Admin')}
+                style={styles.adminBtn}
+                activeOpacity={0.85}
+              >
+                <Ionicons
+                  name={isAdmin ? 'phone-portrait-outline' : 'shield'}
+                  size={14}
+                  color={ACCENT}
+                />
+                <Text style={styles.adminBtnText}>{isAdmin ? 'APP' : 'Admin'}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={() => setMenuVisible(!menuVisible)}
               style={styles.menuBtn}
@@ -194,6 +208,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  adminBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 18,
+    backgroundColor: 'rgba(90,70,50,0.95)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,166,35,0.25)',
+    shadowColor: ACCENT,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  adminBtnText: {
+    color: ACCENT,
+    fontSize: 12,
+    fontWeight: '600',
   },
   menuBtn: {
     paddingVertical: 8,

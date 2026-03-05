@@ -141,6 +141,7 @@ function normalizeBox(b) {
 function normalizeReservation(r) {
   if (!r) return r;
   const box = r.box ? normalizeBox(r.box) : undefined;
+  const amount = r.totalAmount ?? r.total_amount;
   return {
     ...r,
     box_id: r.boxId ?? r.box_id,
@@ -148,11 +149,13 @@ function normalizeReservation(r) {
     personal_id: r.personalId ?? r.personal_id,
     start_time: r.startTime ?? r.start_time,
     end_time: r.end_time ?? r.endTime,
-    total_amount: r.totalAmount ?? r.total_amount,
+    total_amount: amount,
+    total_price: typeof amount === 'string' ? parseFloat(amount) : amount,
     payment_id: r.paymentId ?? r.payment_id,
     created_at: r.createdAt ?? r.created_at,
     updated_at: r.updatedAt ?? r.updated_at,
     box,
+    box_name: r.box?.name ?? box?.name,
   };
 }
 

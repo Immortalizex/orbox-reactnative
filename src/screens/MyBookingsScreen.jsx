@@ -50,9 +50,18 @@ export default function MyBookingsScreen() {
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const filtered = bookings.filter((b) => {
-    if (filter === 'upcoming')
-      return (b.status === 'confirmed' || b.status === 'active') && b.date >= today;
-    if (filter === 'past') return b.status === 'completed' || b.date < today;
+    if (filter === 'upcoming') {
+      const isUpcomingStatus =
+        b.status === 'pending_payment' ||
+        b.status === 'confirmed' ||
+        b.status === 'active';
+      return isUpcomingStatus && (b.date >= today || b.status === 'pending_payment');
+    }
+    if (filter === 'past')
+      return (
+        b.status === 'completed' ||
+        (b.date < today && b.status !== 'pending_payment' && b.status !== 'cancelled')
+      );
     if (filter === 'cancelled') return b.status === 'cancelled';
     return true;
   });
@@ -157,7 +166,7 @@ export default function MyBookingsScreen() {
                         <Text style={styles.primaryBtnText}>Controlar Box</Text>
                       </TouchableOpacity>
                     )}
-                    {booking.status === 'confirmed' && (
+                    {(booking.status === 'confirmed' || booking.status === 'pending_payment') && (
                       <TouchableOpacity
                         style={styles.cancelBtn}
                         onPress={() => cancelMutation.mutate(booking.id)}
