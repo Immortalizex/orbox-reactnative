@@ -13,12 +13,12 @@ import SupportScreen from '../screens/SupportScreen';
 const Tab = createBottomTabNavigator();
 
 const tabIcons = {
-  Home: 'home',
-  ExploreMap: 'map',
-  MyBookings: 'calendar',
-  Personais: 'barbell',
-  History: 'time',
-  Support: 'headset',
+  Home: 'home-outline',
+  ExploreMap: 'location-outline',
+  MyBookings: 'calendar-outline',
+  Personais: 'barbell-outline',
+  History: 'time-outline',
+  Support: 'headset-outline',
 };
 
 export default function MainTabs() {
@@ -28,8 +28,12 @@ export default function MainTabs() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name={tabIcons[route.name] || 'ellipse'} size={size} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name={tabIcons[route.name] || 'ellipse-outline'}
+              size={size}
+              color={color}
+            />
           ),
           tabBarActiveTintColor: '#F5A623',
           tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',

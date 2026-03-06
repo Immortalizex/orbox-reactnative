@@ -288,6 +288,20 @@ const backend = {
       });
     },
   },
+  access: {
+    async requestOpen(reservationId) {
+      return request('/access/request-open', {
+        method: 'POST',
+        body: JSON.stringify({ reservationId }),
+      });
+    },
+    async validateCode(code, boxId) {
+      return request('/access/validate', {
+        method: 'POST',
+        body: JSON.stringify({ code, boxId }),
+      });
+    },
+  },
 };
 
 function useBackend() {
@@ -369,6 +383,12 @@ export const api = {
           method: method === 'credit_card' ? 'card' : method || 'pix',
         }),
       });
+    },
+  },
+  access: {
+    async requestOpen(reservationId) {
+      if (!useBackend()) throw new Error('Abrir box por QR disponível apenas com o backend.');
+      return backend.access.requestOpen(reservationId);
     },
   },
   entities: {

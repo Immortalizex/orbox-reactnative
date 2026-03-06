@@ -7,6 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import { OrBoxLogoFull } from '../components/OrBoxLogo';
 
 const ACCENT = '#F5A623';
+const SIDEBAR_BG = '#1A1A1A';
+const SIDEBAR_SELECTED_BG = 'rgba(245, 165, 35, 0.18)';
+const SIDEBAR_INACTIVE = '#CCCCCC';
+const SIDEBAR_LOGOUT = '#F44336';
 const HEADER_HEIGHT = 56;
 const TAB_BAR_HEIGHT = 56;
 
@@ -19,9 +23,17 @@ export default function AppHeader({ isAdmin }) {
   const headerTotalHeight = insets.top + HEADER_HEIGHT;
   const tabBarTotalHeight = TAB_BAR_HEIGHT + insets.bottom;
 
-  const activeTab = useNavigationState((state) => {
-    if (!state?.routes?.[state.index]) return null;
-    return state.routes[state.index].name;
+  const currentPage = useNavigationState((state) => {
+    if (!state?.routes?.[state.index]) return 'Home';
+    const route = state.routes[state.index];
+    if (route.name === 'Main') {
+      if (route.state?.routes != null && route.state?.index != null) {
+        const tabRoute = route.state.routes[route.state.index];
+        return tabRoute?.name ?? 'Home';
+      }
+      return 'Home';
+    }
+    return route.name;
   });
 
   const handleLogout = async () => {
@@ -40,7 +52,7 @@ export default function AppHeader({ isAdmin }) {
   const menuItems = [
     { key: 'Profile', label: 'Perfil', icon: 'person-outline', route: 'Profile', activeWhen: 'Profile' },
     { key: 'Home', label: 'Home', icon: 'home-outline', route: 'Main', screen: 'Home', activeWhen: 'Home' },
-    { key: 'Mapa', label: 'Mapa', icon: 'map-outline', route: 'Main', screen: 'ExploreMap', activeWhen: 'ExploreMap' },
+    { key: 'Mapa', label: 'Mapa', icon: 'location-outline', route: 'Main', screen: 'ExploreMap', activeWhen: 'ExploreMap' },
     { key: 'Reservas', label: 'Reservas', icon: 'calendar-outline', route: 'Main', screen: 'MyBookings', activeWhen: 'MyBookings' },
     { key: 'Personais', label: 'Personais', icon: 'barbell-outline', route: 'Main', screen: 'Personais', activeWhen: 'Personais' },
     { key: 'Histórico', label: 'Histórico', icon: 'time-outline', route: 'Main', screen: 'History', activeWhen: 'History' },
@@ -132,17 +144,18 @@ export default function AppHeader({ isAdmin }) {
             />
             <View style={[styles.menuPanel, { paddingBottom: 16 + insets.bottom }]}>
               {menuItems.map((item) => {
-              const isActive = activeTab === item.activeWhen;
+              const isActive = currentPage === item.activeWhen;
               return (
                 <TouchableOpacity
                   key={item.key}
                   style={[styles.menuItem, isActive && styles.menuItemActive]}
                   onPress={() => onMenuPress(item)}
+                  activeOpacity={0.7}
                 >
                   <Ionicons
                     name={item.icon}
                     size={22}
-                    color={isActive ? ACCENT : 'rgba(255,255,255,0.9)'}
+                    color={isActive ? ACCENT : SIDEBAR_INACTIVE}
                   />
                   <Text style={[styles.menuItemText, isActive && styles.menuItemTextActive]}>
                     {item.label}
@@ -151,13 +164,13 @@ export default function AppHeader({ isAdmin }) {
               );
             })}
             {user?.role === 'admin' && (
-              <TouchableOpacity style={styles.menuItem} onPress={openAdmin}>
-                <Ionicons name="shield-outline" size={22} color="rgba(255,255,255,0.9)" />
+              <TouchableOpacity style={styles.menuItem} onPress={openAdmin} activeOpacity={0.7}>
+                <Ionicons name="shield-outline" size={22} color={SIDEBAR_INACTIVE} />
                 <Text style={styles.menuItemText}>{isAdmin ? 'Ir para App' : 'Painel Admin'}</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemSair]} onPress={handleLogout}>
-              <Ionicons name="log-out-outline" size={22} color="#f87171" />
+            <TouchableOpacity style={[styles.menuItem, styles.menuItemSair]} onPress={handleLogout} activeOpacity={0.7}>
+              <Ionicons name="log-out-outline" size={22} color={SIDEBAR_LOGOUT} />
               <Text style={styles.menuItemTextSair}>Sair</Text>
             </TouchableOpacity>
           </View>
@@ -250,9 +263,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   menuPanel: {
-    width: 280,
+    width: 240,
     alignSelf: 'stretch',
-    backgroundColor: '#0d0d0d',
+    backgroundColor: SIDEBAR_BG,
     borderLeftWidth: 1,
     borderLeftColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 12,
@@ -265,17 +278,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 14,
     marginHorizontal: 4,
-    borderRadius: 10,
+    marginBottom: 4,
+    borderRadius: 12,
   },
   menuItemActive: {
-    backgroundColor: 'rgba(245,166,35,0.18)',
+    backgroundColor: SIDEBAR_SELECTED_BG,
   },
   menuItemText: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 16,
+    color: SIDEBAR_INACTIVE,
+    fontSize: 14,
     fontWeight: '500',
   },
   menuItemTextActive: {
@@ -284,13 +298,14 @@ const styles = StyleSheet.create({
   },
   menuItemSair: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
-    marginTop: 12,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+    marginTop: 8,
+    marginBottom: 0,
     marginHorizontal: 4,
   },
   menuItemTextSair: {
-    color: '#f87171',
-    fontSize: 16,
+    color: SIDEBAR_LOGOUT,
+    fontSize: 14,
     fontWeight: '500',
   },
 });

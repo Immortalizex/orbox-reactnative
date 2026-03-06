@@ -7,6 +7,9 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Modal,
+  Image,
+  Pressable,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useRootNavigation } from '../hooks/useRootNavigation';
@@ -14,6 +17,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
 import { format, parse, differenceInSeconds } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
+import QRCode from 'qrcode';
 
 export default function BoxSessionScreen() {
   const route = useRoute();
@@ -24,6 +28,8 @@ export default function BoxSessionScreen() {
   const [doorOpening, setDoorOpening] = useState(false);
   const [doorOpen, setDoorOpen] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [openQrModal, setOpenQrModal] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -87,12 +93,30 @@ export default function BoxSessionScreen() {
     onSuccess: () => refetchBox(),
   });
 
-  const handleOpenDoor = async () => {
-    setDoorOpening(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setDoorOpening(false);
-    setDoorOpen(true);
-    setTimeout(() => setDoorOpen(false), 30000);
+  const requestOpenMutation = useMutation({
+    mutationFn: (reservationId) => api.access.requestOpen(reservationId),
+    onSuccess: (data) => {
+      setOpenQrModal({
+        code: data?.code,
+        expiresAt: data?.expiresAt ? new Date(data.expiresAt) : null,
+      });
+    },
+    onError: (err) => {
+      const msg = err?.message || 'Não foi possível gerar o código. Conecte ao backend para abrir por QR.';
+      Alert.alert('Abrir box', msg);
+    },
+  });
+
+  useEffect(() => {
+    if (!openQrModal?.code) {
+      setQrDataUrl(null);
+      return;
+    }
+    QRCode.toDataURL(openQrModal.code, { width: 280, margin: 2 }).then(setQrDataUrl).catch(() => setQrDataUrl(null));
+  }, [openQrModal?.code]);
+
+  const handleOpenDoor = () => {
+    requestOpenMutation.mutate(booking.id);
   };
 
   const handleCheckOut = async () => {
@@ -179,20 +203,22 @@ export default function BoxSessionScreen() {
           style={[
             styles.actionBtn,
             doorOpen && styles.actionBtnOpen,
-            doorOpening && styles.actionBtnDisabled,
+            (doorOpening || requestOpenMutation.isPending) && styles.actionBtnDisabled,
           ]}
           onPress={handleOpenDoor}
-          disabled={doorOpening}
+          disabled={doorOpening || requestOpenMutation.isPending}
         >
-          {doorOpening ? (
+          {requestOpenMutation.isPending ? (
+            <ActivityIndicator size="small" color="#F5A623" />
+          ) : doorOpening ? (
             <ActivityIndicator size="small" color="#F5A623" />
           ) : doorOpen ? (
             <Ionicons name="checkmark-circle" size={24} color="#4ade80" />
           ) : (
-            <Ionicons name="open" size={24} color="#F5A623" />
+            <Ionicons name="qr-code" size={24} color="#F5A623" />
           )}
           <Text style={[styles.actionLabel, doorOpen && styles.actionLabelOpen]}>
-            {doorOpening ? 'Abrindo...' : doorOpen ? 'Aberta!' : 'Abrir Porta'}
+            {requestOpenMutation.isPending ? 'Gerando QR...' : doorOpening ? 'Abrindo...' : doorOpen ? 'Aberta!' : 'Abrir Porta (QR)'}
           </Text>
         </TouchableOpacity>
 
@@ -258,6 +284,38 @@ export default function BoxSessionScreen() {
         </Text>
         <Text style={styles.footerText}>R$ {booking.total_price?.toFixed(2)}</Text>
       </View>
+
+      <Modal
+        visible={!!openQrModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpenQrModal(null)}
+      >
+        <Pressable style={styles.qrModalOverlay} onPress={() => setOpenQrModal(null)}>
+          <Pressable style={styles.qrModalContent} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.qrModalTitle}>Código para abrir o box</Text>
+            <Text style={styles.qrModalHint}>Aponte o leitor QR do box para este código</Text>
+            {qrDataUrl ? (
+              <Image source={{ uri: qrDataUrl }} style={styles.qrImage} />
+            ) : (
+              <View style={[styles.qrImage, styles.qrPlaceholder]}>
+                <ActivityIndicator size="large" color="#F5A623" />
+              </View>
+            )}
+            {openQrModal?.code && (
+              <Text style={styles.qrCodeText} selectable>{openQrModal.code}</Text>
+            )}
+            {openQrModal?.expiresAt && (
+              <Text style={styles.qrExpires}>
+                Expira em {format(openQrModal.expiresAt, 'HH:mm')} ({Math.max(0, Math.ceil((openQrModal.expiresAt - now) / 60000))} min)
+              </Text>
+            )}
+            <TouchableOpacity style={styles.qrModalClose} onPress={() => setOpenQrModal(null)}>
+              <Text style={styles.qrModalCloseText}>Fechar</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -376,4 +434,35 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.05)',
   },
   footerText: { fontSize: 12, color: 'rgba(255,255,255,0.3)' },
+  qrModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  qrModalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    maxWidth: 340,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: 'rgba(245,166,35,0.2)',
+  },
+  qrModalTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 8 },
+  qrModalHint: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 },
+  qrImage: { width: 280, height: 280, backgroundColor: '#fff', borderRadius: 12 },
+  qrPlaceholder: { justifyContent: 'center', alignItems: 'center' },
+  qrCodeText: { fontSize: 28, fontWeight: '700', color: '#F5A623', letterSpacing: 4, marginTop: 16 },
+  qrExpires: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 8 },
+  qrModalClose: {
+    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: 'rgba(245,166,35,0.2)',
+    borderRadius: 12,
+  },
+  qrModalCloseText: { fontSize: 14, fontWeight: '600', color: '#F5A623' },
 });

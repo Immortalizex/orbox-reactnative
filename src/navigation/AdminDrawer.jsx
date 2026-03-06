@@ -28,10 +28,10 @@ export default function AdminDrawer() {
     <Drawer.Navigator
       screenOptions={{
         header: () => <AppHeader isAdmin />,
-        drawerStyle: { backgroundColor: '#0d0d0d', width: 260 },
+        drawerStyle: { backgroundColor: '#0d0d0d', width: 220 },
         drawerActiveTintColor: '#F5A623',
         drawerInactiveTintColor: 'rgba(255,255,255,0.5)',
-        drawerLabelStyle: { fontSize: 14, fontWeight: '500' },
+        drawerLabelStyle: { fontSize: 12, fontWeight: '500' },
       }}
     >
       {adminScreens.map(({ name, component, label, icon }) => (
