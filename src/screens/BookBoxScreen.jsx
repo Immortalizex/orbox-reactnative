@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useRootNavigation } from '../hooks/useRootNavigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
 import { format, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function BookBoxScreen() {
   const route = useRoute();
   const rootNav = useRootNavigation();
+  const queryClient = useQueryClient();
   const boxId = route.params?.boxId;
 
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -102,6 +103,8 @@ export default function BookBoxScreen() {
       (b) => b.start_time === selectedSlot && b.box_id === boxId
     );
     setBooking(false);
+    queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+    queryClient.invalidateQueries({ queryKey: ['boxBookings', boxId, selectedDate] });
     rootNav.navigate('BookingConfirmed', { bookingId: newBooking?.id });
   };
 

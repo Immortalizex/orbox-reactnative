@@ -8,9 +8,12 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  Modal,
+  Image,
+  Pressable,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useRootNavigation } from '../hooks/useRootNavigation';
 import { api } from '../api/client';
 import { format } from 'date-fns';
@@ -29,22 +32,49 @@ export default function MyBookingsScreen() {
   const [user, setUser] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [filter, setFilter] = useState('upcoming');
+  const [pixModal, setPixModal] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     api.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ['myBookings', user?.email],
     queryFn: () => api.entities.Booking.filter({ user_email: user?.email }, '-date', 100),
     enabled: !!user?.email,
   });
 
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.email) refetch();
+    }, [user?.email, refetch])
+  );
+
   const cancelMutation = useMutation({
     mutationFn: (id) => api.entities.Booking.update(id, { status: 'cancelled' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+    },
+  });
+
+  const payMutation = useMutation({
+    mutationFn: async ({ reservationId, amount, method }) => {
+      const res = await api.payments.create({ reservationId, amount, method: method || 'pix' });
+      return res;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+      const qrCodeUrl = data?.qr_code_url ?? data?.qrCodeUrl;
+      const qrCode = data?.qr_code ?? data?.qrCode;
+      setPixModal({ qr_code_url: qrCodeUrl, qr_code: qrCode });
+    },
+    onError: (err) => {
+      const msg =
+        typeof err?.message === 'string' && err.message.includes('backend')
+          ? 'Pagamento disponível apenas com o backend configurado.'
+          : err?.message || 'Não foi possível processar o pagamento.';
+      alert(msg);
     },
   });
 
@@ -73,10 +103,31 @@ export default function MyBookingsScreen() {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Minhas Reservas</Text>
+    <>
+      <Modal visible={!!pixModal} transparent animationType="fade">
+        <Pressable style={styles.modalBackdrop} onPress={() => setPixModal(null)}>
+          <Pressable style={styles.pixModalBox} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.pixModalTitle}>Pague com PIX</Text>
+            <Text style={styles.pixModalDesc}>
+              {pixModal?.qr_code_url || pixModal?.qr_code
+                ? 'Escaneie o QR Code no app do seu banco'
+                : 'Pagamento iniciado. O QR Code será exibido em instantes ou você receberá a confirmação em breve.'}
+            </Text>
+            {pixModal?.qr_code_url ? (
+              <Image source={{ uri: pixModal.qr_code_url }} style={styles.pixQrImage} resizeMode="contain" />
+            ) : pixModal?.qr_code ? (
+              <Text style={styles.pixCodeText} selectable>{pixModal.qr_code}</Text>
+            ) : null}
+            <TouchableOpacity style={styles.pixModalBtn} onPress={() => setPixModal(null)}>
+              <Text style={styles.pixModalBtnText}>Fechar</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Minhas Reservas</Text>
 
-      <View style={styles.filterRow}>
+        <View style={styles.filterRow}>
         {filters.map((f) => (
           <TouchableOpacity
             key={f.key}
@@ -166,10 +217,28 @@ export default function MyBookingsScreen() {
                         <Text style={styles.primaryBtnText}>Controlar Box</Text>
                       </TouchableOpacity>
                     )}
+                    {booking.status === 'pending_payment' && (
+                      <TouchableOpacity
+                        style={styles.primaryBtn}
+                        onPress={() =>
+                          payMutation.mutate({
+                            reservationId: booking.id,
+                            amount: booking.total_price ?? booking.total_amount ?? 0,
+                            method: 'pix',
+                          })
+                        }
+                        disabled={payMutation.isPending}
+                      >
+                        <Text style={styles.primaryBtnText}>
+                          {payMutation.isPending ? 'Processando…' : 'Pagar (PIX)'}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                     {(booking.status === 'confirmed' || booking.status === 'pending_payment') && (
                       <TouchableOpacity
                         style={styles.cancelBtn}
                         onPress={() => cancelMutation.mutate(booking.id)}
+                        disabled={payMutation.isPending}
                       >
                         <Text style={styles.cancelBtnText}>Cancelar</Text>
                       </TouchableOpacity>
@@ -181,7 +250,8 @@ export default function MyBookingsScreen() {
           ))}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 
@@ -241,4 +311,29 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   emptyCtaText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  pixModalBox: {
+    backgroundColor: '#141414',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    minWidth: 280,
+  },
+  pixModalTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 8 },
+  pixModalDesc: { fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 20 },
+  pixQrImage: { width: 200, height: 200, marginBottom: 20 },
+  pixCodeText: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginBottom: 16, maxWidth: 260 },
+  pixModalBtn: {
+    backgroundColor: '#F5A623',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  pixModalBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
 });

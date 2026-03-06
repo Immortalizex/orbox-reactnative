@@ -358,6 +358,19 @@ export const api = {
       return request('/auth/profile', { method: 'PATCH', body: JSON.stringify(body) });
     },
   },
+  payments: {
+    async create({ reservationId, amount, method }) {
+      if (!useBackend()) throw new Error('Pagamento disponível apenas com o backend.');
+      return request('/payments', {
+        method: 'POST',
+        body: JSON.stringify({
+          reservationId,
+          amount: typeof amount === 'string' ? parseFloat(amount) : amount,
+          method: method === 'credit_card' ? 'card' : method || 'pix',
+        }),
+      });
+    },
+  },
   entities: {
     Box: (() => {
       const generic = createEntity('Box');
