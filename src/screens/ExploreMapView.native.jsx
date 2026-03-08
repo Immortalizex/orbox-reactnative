@@ -26,7 +26,7 @@ export default function ExploreMapView({ filtered, region }) {
         mapType="standard"
         showsUserLocation={false}
         loadingEnabled
-        loadingIndicatorColor="#F5A623"
+        loadingIndicatorColor="#f7941d"
         loadingBackgroundColor="#0a0a0a"
       >
         {boxesWithCoords.map((box) => (

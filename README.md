@@ -37,7 +37,7 @@ Then press `i` for iOS simulator, `a` for Android emulator, or scan the QR code 
 - **Booking flow**: ExploreMap → BookBox → BookingConfirmed; BoxSession for active sessions
 - **Personais**: List, profile, reviews; PersonalRegister and PersonalDashboard for trainers
 - **Admin**: Drawer with Dashboard, Boxes, Reservas, Usuários, Personais, Financeiro (admin role only)
-- **UI**: Dark theme (#0a0a0a), accent #F5A623, same copy and structure as web
+- **UI**: Dark theme (#0a0a0a), accent #f7941d, same copy and structure as web
 
 ## Structure
 

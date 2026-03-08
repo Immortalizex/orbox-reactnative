@@ -28,7 +28,7 @@ export default function AdminUsersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20 },
   card: {
@@ -41,6 +41,6 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 14, fontWeight: '600', color: '#fff', marginBottom: 4 },
   email: { fontSize: 13, color: 'rgba(255,255,255,0.5)' },
-  roleBadge: { marginTop: 8, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: 'rgba(245,166,35,0.2)' },
-  roleText: { fontSize: 12, color: '#F5A623', fontWeight: '600' },
+  roleBadge: { marginTop: 8, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: 'rgba(247,148,29,0.2)' },
+  roleText: { fontSize: 12, color: '#f7941d', fontWeight: '600' },
 });

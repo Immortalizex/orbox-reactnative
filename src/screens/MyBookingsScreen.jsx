@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
+import GradientButton from '../components/GradientButton';
 import { Ionicons } from '@expo/vector-icons';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -118,9 +119,13 @@ export default function MyBookingsScreen() {
             ) : pixModal?.qr_code ? (
               <Text style={styles.pixCodeText} selectable>{pixModal.qr_code}</Text>
             ) : null}
-            <TouchableOpacity style={styles.pixModalBtn} onPress={() => setPixModal(null)}>
-              <Text style={styles.pixModalBtnText}>Fechar</Text>
-            </TouchableOpacity>
+            <GradientButton
+              style={styles.pixModalBtn}
+              contentStyle={styles.pixModalBtnContent}
+              onPress={() => setPixModal(null)}
+            >
+              Fechar
+            </GradientButton>
           </Pressable>
         </Pressable>
       </Modal>
@@ -147,13 +152,15 @@ export default function MyBookingsScreen() {
           title="Nenhuma reserva"
           description="Você ainda não tem reservas nesta categoria"
           action={
-            <TouchableOpacity
+            <GradientButton
               style={styles.emptyCta}
+              contentStyle={styles.emptyCtaContent}
+              row
               onPress={() => rootNav.navigate('ExploreMap')}
             >
               <Text style={styles.emptyCtaText}>Encontrar Box</Text>
-              <Ionicons name="arrow-forward" size={16} color="#000" />
-            </TouchableOpacity>
+              <Ionicons name="arrow-forward" size={16} color="#1a1a1a" />
+            </GradientButton>
           }
         />
       ) : (
@@ -210,16 +217,18 @@ export default function MyBookingsScreen() {
                   </View>
                   <View style={styles.actions}>
                     {booking.status === 'active' && (
-                      <TouchableOpacity
+                      <GradientButton
                         style={styles.primaryBtn}
+                        contentStyle={styles.primaryBtnContent}
                         onPress={() => rootNav.navigate('BoxSession', { bookingId: booking.id })}
                       >
-                        <Text style={styles.primaryBtnText}>Controlar Box</Text>
-                      </TouchableOpacity>
+                        Controlar Box
+                      </GradientButton>
                     )}
                     {booking.status === 'pending_payment' && (
-                      <TouchableOpacity
+                      <GradientButton
                         style={styles.primaryBtn}
+                        contentStyle={styles.primaryBtnContent}
                         onPress={() =>
                           payMutation.mutate({
                             reservationId: booking.id,
@@ -229,10 +238,8 @@ export default function MyBookingsScreen() {
                         }
                         disabled={payMutation.isPending}
                       >
-                        <Text style={styles.primaryBtnText}>
-                          {payMutation.isPending ? 'Processando…' : 'Pagar (PIX)'}
-                        </Text>
-                      </TouchableOpacity>
+                        {payMutation.isPending ? 'Processando…' : 'Pagar (PIX)'}
+                      </GradientButton>
                     )}
                     {(booking.status === 'confirmed' || booking.status === 'pending_payment') && (
                       <TouchableOpacity
@@ -256,7 +263,7 @@ export default function MyBookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 16 },
   filterRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
@@ -266,9 +273,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
-  filterBtnActive: { backgroundColor: '#F5A623' },
+  filterBtnActive: { backgroundColor: '#f89b14', borderRadius: 14 },
   filterText: { fontSize: 14, fontWeight: '500', color: 'rgba(255,255,255,0.5)' },
-  filterTextActive: { color: '#000' },
+  filterTextActive: { color: '#1a1a1a' },
   list: { gap: 12 },
   card: {
     backgroundColor: '#141414',
@@ -280,37 +287,30 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: 16 },
   cardRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   boxName: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  meta: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  meta: { fontSize: 12, color: '#fff' },
   cardExpand: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingTop: 16 },
   accessCode: {
-    backgroundColor: 'rgba(245,166,35,0.08)',
+    backgroundColor: 'rgba(247,148,29,0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.2)',
+    borderColor: 'rgba(247,148,29,0.2)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginBottom: 16,
   },
-  accessCodeLabel: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 4 },
-  accessCodeValue: { fontSize: 24, fontWeight: '700', color: '#F5A623', letterSpacing: 4 },
+  accessCodeLabel: { fontSize: 12, color: '#fff', marginBottom: 4 },
+  accessCodeValue: { fontSize: 24, fontWeight: '700', color: '#f7941d', letterSpacing: 4 },
   detailsRow: { flexDirection: 'row', gap: 24, marginBottom: 16 },
   detailLabel: { fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 4 },
-  detailValue: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  detailValue: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
   actions: { flexDirection: 'row', gap: 8 },
-  primaryBtn: { flex: 1, backgroundColor: '#F5A623', paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
-  primaryBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  primaryBtn: { flex: 1 },
+  primaryBtnContent: { paddingVertical: 10, borderRadius: 14 },
   cancelBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
   cancelBtnText: { color: '#f87171', fontWeight: '500' },
-  emptyCta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#F5A623',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-  },
-  emptyCtaText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  emptyCta: {},
+  emptyCtaContent: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 14 },
+  emptyCtaText: { color: '#1a1a1a', fontWeight: '700', fontSize: 14 },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -329,11 +329,7 @@ const styles = StyleSheet.create({
   pixModalDesc: { fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 20 },
   pixQrImage: { width: 200, height: 200, marginBottom: 20 },
   pixCodeText: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginBottom: 16, maxWidth: 260 },
-  pixModalBtn: {
-    backgroundColor: '#F5A623',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-  },
-  pixModalBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  pixModalBtn: {},
+  pixModalBtnContent: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 14 },
+  pixModalBtnText: { color: '#1a1a1a', fontWeight: '700', fontSize: 14 },
 });

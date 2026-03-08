@@ -24,6 +24,15 @@ function getBaseUrl() {
   return base;
 }
 
+/** Ngrok free tier: skip browser warning so the API response (with CORS) is returned */
+function ngrokHeaders(base) {
+  const b = typeof base === 'string' ? base : getBaseUrl();
+  if (b.includes('ngrok-free.dev') || b.includes('ngrok.io')) {
+    return { 'ngrok-skip-browser-warning': 'true' };
+  }
+  return {};
+}
+
 /** Normalize JWT: strip all whitespace (fixes copy-paste or encoding issues that break verification) */
 function normalizeToken(t) {
   if (!t || typeof t !== 'string') return null;
@@ -45,6 +54,7 @@ async function request(path, options = {}) {
     ...options.headers,
   };
   if (token) headers.Authorization = `Bearer ${token}`;
+  Object.assign(headers, ngrokHeaders(base));
   const res = await fetch(url, { ...options, headers, credentials: 'include' });
   if (!res.ok) {
     const err = new Error(res.statusText || 'Request failed');
@@ -314,7 +324,7 @@ async function authRequest(path, body) {
   const url = `${base}${path.startsWith('/') ? path : `/${path}`}`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...ngrokHeaders(base) },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
@@ -567,7 +577,7 @@ export const api = {
           });
         }
 
-        const headers = {};
+        const headers = { ...ngrokHeaders(base) };
         if (token) headers.Authorization = `Bearer ${token}`;
         if (appParams.appId) headers['X-App-Id'] = appParams.appId;
         const res = await fetch(`${base}/upload`, { method: 'POST', body: formData, headers });
@@ -593,7 +603,7 @@ export const api = {
     const base = getBaseUrl();
     const token = await getToken();
     const url = `${base}/apps/public/public-settings/by-id/${encodeURIComponent(appId || appParams.appId)}`;
-    const headers = { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(appParams.appId ? { 'X-App-Id': appParams.appId } : {}) };
+    const headers = { ...ngrokHeaders(base), ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(appParams.appId ? { 'X-App-Id': appParams.appId } : {}) };
     const res = await fetch(url, { headers });
     if (!res.ok) {
       const err = new Error(res.statusText || 'Request failed');

@@ -66,10 +66,14 @@ export default function HomeScreen() {
       </Text>
 
       <View style={styles.statsGrid}>
-        <QuickStatCard iconName="calendar" label="Próximas" value={upcoming.length} accent />
-        <QuickStatCard iconName="flash" label="Concluídas" value={completedCount} />
-        <QuickStatCard iconName="time" label="Horas Treino" value={`${totalHours.toFixed(0)}h`} />
-        <QuickStatCard iconName="location" label="Boxes Ativos" value={boxes.length} />
+        <View style={styles.statsRow}>
+          <QuickStatCard iconName="calendar" label="Próximas" value={upcoming.length} accent />
+          <QuickStatCard iconName="flash" label="Concluídas" value={completedCount} blue />
+        </View>
+        <View style={[styles.statsRow, styles.statsRowLast]}>
+          <QuickStatCard iconName="time" label="Horas Treino" value={`${totalHours.toFixed(0)}h`} green />
+          <QuickStatCard iconName="location-outline" label="Boxes Ativos" value={boxes.length} white />
+        </View>
       </View>
 
       {activeSession && (
@@ -125,16 +129,21 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
-  welcome: { fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 4 },
+  welcome: { fontSize: 14, color: '#fff', marginBottom: 4 },
   greeting: { fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 24 },
-  greetingAccent: { color: '#F5A623' },
+  greetingAccent: { color: '#f7941d' },
   statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
     marginBottom: 24,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  statsRowLast: {
+    marginBottom: 0,
   },
   section: { marginBottom: 24 },
   sectionTitle: {
@@ -146,7 +155,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  link: { fontSize: 12, color: '#F5A623', fontWeight: '600' },
+  link: { fontSize: 12, color: '#f7941d', fontWeight: '600' },
   boxGrid: { gap: 16 },
   emptyText: { textAlign: 'center', paddingVertical: 32, color: 'rgba(255,255,255,0.3)', fontSize: 14 },
 });

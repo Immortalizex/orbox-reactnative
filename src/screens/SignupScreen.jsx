@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { OrBoxLogoFull } from '../components/OrBoxLogo';
+import GradientButton from '../components/GradientButton';
 import { formatCpf, cpfDigits } from '../lib/cpf';
 
 export default function SignupScreen() {
@@ -77,7 +78,7 @@ export default function SignupScreen() {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.logoWrap}>
-          <OrBoxLogoFull height={40} />
+          <OrBoxLogoFull height={80} />
         </View>
         <Text style={styles.title}>Criar conta</Text>
         <Text style={styles.subtitle}>CPF, telefone e e-mail para autenticação</Text>
@@ -86,7 +87,7 @@ export default function SignupScreen() {
           <TextInput
             style={styles.input}
             placeholder="000.000.000-00"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={cpf}
             onChangeText={handleCpfChange}
             keyboardType="numeric"
@@ -96,7 +97,7 @@ export default function SignupScreen() {
           <TextInput
             style={styles.input}
             placeholder="(11) 99999-9999"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -106,7 +107,7 @@ export default function SignupScreen() {
           <TextInput
             style={styles.input}
             placeholder="seu@email.com"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -117,7 +118,7 @@ export default function SignupScreen() {
           <TextInput
             style={styles.input}
             placeholder="••••••••"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -127,19 +128,19 @@ export default function SignupScreen() {
           <TextInput
             style={styles.input}
             placeholder="Seu nome"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={fullName}
             onChangeText={setFullName}
             autoComplete="name"
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+          <GradientButton
+            style={loading && styles.buttonDisabled}
             onPress={handleSubmit}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>{loading ? 'Criando conta…' : 'Criar conta'}</Text>
-          </TouchableOpacity>
+            {loading ? 'Criando conta…' : 'Criar conta'}
+          </GradientButton>
         </View>
         <TouchableOpacity style={styles.linkWrap} onPress={() => navigation.goBack()}>
           <Text style={styles.linkText}>Já tem conta? </Text>
@@ -151,7 +152,7 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -176,16 +177,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   error: { color: '#f87171', fontSize: 14, marginBottom: 12 },
-  button: {
-    backgroundColor: '#F5A623',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-  },
+  button: { marginTop: 8 },
   buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: '#000', fontWeight: '700', fontSize: 16 },
   linkWrap: { flexDirection: 'row', marginTop: 24 },
   linkText: { color: 'rgba(255,255,255,0.5)', fontSize: 14 },
-  linkAccent: { color: '#F5A623', fontSize: 14, fontWeight: '600' },
+  linkAccent: { color: '#f7941d', fontSize: 14, fontWeight: '600' },
 });

@@ -29,7 +29,7 @@ export default function AdminDrawer() {
       screenOptions={{
         header: () => <AppHeader isAdmin />,
         drawerStyle: { backgroundColor: '#0d0d0d', width: 220 },
-        drawerActiveTintColor: '#F5A623',
+        drawerActiveTintColor: '#f7941d',
         drawerInactiveTintColor: 'rgba(255,255,255,0.5)',
         drawerLabelStyle: { fontSize: 12, fontWeight: '500' },
       }}

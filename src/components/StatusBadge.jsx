@@ -5,7 +5,7 @@ const presets = {
   pending_payment: { label: 'Pagamento pendente', bg: 'rgba(234,179,8,0.2)', text: '#facc15', dot: '#facc15' },
   confirmed: { label: 'Confirmada', bg: 'rgba(59,130,246,0.2)', text: '#60a5fa', dot: '#60a5fa' },
   active: { label: 'Em andamento', bg: 'rgba(34,197,94,0.2)', text: '#4ade80', dot: '#4ade80' },
-  completed: { label: 'Concluída', bg: 'rgba(255,255,255,0.1)', text: 'rgba(255,255,255,0.6)', dot: 'rgba(255,255,255,0.4)' },
+  completed: { label: 'Concluída', bg: 'rgba(255,255,255,0.1)', text: 'rgba(255,255,255,0.6)', dot: '#fff' },
   cancelled: { label: 'Cancelada', bg: 'rgba(239,68,68,0.2)', text: '#f87171', dot: '#f87171' },
   online: { label: 'Online', bg: 'rgba(34,197,94,0.2)', text: '#4ade80', dot: '#4ade80' },
   offline: { label: 'Offline', bg: 'rgba(239,68,68,0.2)', text: '#f87171', dot: '#f87171' },
@@ -13,7 +13,7 @@ const presets = {
   open: { label: 'Aberto', bg: 'rgba(59,130,246,0.2)', text: '#60a5fa', dot: '#60a5fa' },
   in_progress: { label: 'Em Progresso', bg: 'rgba(234,179,8,0.2)', text: '#facc15', dot: '#facc15' },
   resolved: { label: 'Resolvido', bg: 'rgba(34,197,94,0.2)', text: '#4ade80', dot: '#4ade80' },
-  closed: { label: 'Fechado', bg: 'rgba(255,255,255,0.1)', text: 'rgba(255,255,255,0.6)', dot: 'rgba(255,255,255,0.4)' },
+  closed: { label: 'Fechado', bg: 'rgba(255,255,255,0.1)', text: 'rgba(255,255,255,0.6)', dot: '#fff' },
 };
 
 export default function StatusBadge({ status }) {
@@ -21,7 +21,7 @@ export default function StatusBadge({ status }) {
     label: status,
     bg: 'rgba(255,255,255,0.1)',
     text: 'rgba(255,255,255,0.6)',
-    dot: 'rgba(255,255,255,0.4)',
+    dot: '#fff',
   };
   return (
     <View style={[styles.badge, { backgroundColor: config.bg }]}>

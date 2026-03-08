@@ -17,7 +17,7 @@ import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { formatCpf } from '../lib/cpf';
 
-const ACCENT = '#F5A623';
+const ACCENT = '#f7941d';
 
 export default function CompleteProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -135,7 +135,7 @@ export default function CompleteProfileScreen() {
           <TextInput
             style={styles.input}
             placeholder="Seu nome"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={name}
             onChangeText={setName}
             autoComplete="name"
@@ -155,7 +155,7 @@ export default function CompleteProfileScreen() {
           <TextInput
             style={styles.input}
             placeholder="(11) 99999-9999"
-            placeholderTextColor="rgba(255,255,255,0.4)"
+            placeholderTextColor="#fff"
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -191,7 +191,7 @@ export default function CompleteProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: 'rgba(245,166,35,0.25)',
+    backgroundColor: 'rgba(247,148,29,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.4)',
+    color: '#fff',
     marginTop: -8,
     marginBottom: 16,
   },

@@ -17,6 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { api } from '../api/client';
 import { Ionicons } from '@expo/vector-icons';
+import GradientButton from '../components/GradientButton';
 
 const SPECIALTIES_OPTIONS = [
   'Musculação', 'Funcional', 'HIIT', 'Yoga', 'Pilates',
@@ -113,15 +114,15 @@ export default function PersonalRegisterScreen() {
     return (
       <View style={styles.centerScreen}>
         <View style={styles.successIcon}>
-          <Ionicons name="checkmark-circle" size={32} color="#F5A623" />
+          <Ionicons name="checkmark-circle" size={32} color="#f7941d" />
         </View>
         <Text style={styles.centerTitle}>Cadastro já realizado</Text>
         <Text style={styles.centerSubtitle}>
           Status: {alreadyRegistered.status === 'pending' ? 'Em análise' : alreadyRegistered.status === 'active' ? 'Ativo' : 'Suspenso'}
         </Text>
-        <TouchableOpacity style={styles.primaryBtn} onPress={() => rootNav.navigate('PersonalDashboard')}>
-          <Text style={styles.primaryBtnText}>Meu Dashboard</Text>
-        </TouchableOpacity>
+        <GradientButton style={styles.primaryBtn} onPress={() => rootNav.navigate('PersonalDashboard')}>
+          Meu Dashboard
+        </GradientButton>
       </View>
     );
   }
@@ -136,9 +137,9 @@ export default function PersonalRegisterScreen() {
         <Text style={styles.centerSubtitle}>
           Seu cadastro está em análise. Você receberá uma notificação quando for aprovado.
         </Text>
-        <TouchableOpacity style={styles.primaryBtn} onPress={() => rootNav.navigate('Main')}>
-          <Text style={styles.primaryBtnText}>Voltar ao início</Text>
-        </TouchableOpacity>
+        <GradientButton style={styles.primaryBtn} onPress={() => rootNav.navigate('Main')}>
+          Voltar ao início
+        </GradientButton>
       </View>
     );
   }
@@ -216,7 +217,7 @@ export default function PersonalRegisterScreen() {
         <Switch
           value={form.interested_in_plantao}
           onValueChange={(v) => setForm((f) => ({ ...f, interested_in_plantao: v }))}
-          trackColor={{ false: 'rgba(255,255,255,0.1)', true: '#F5A623' }}
+          trackColor={{ false: 'rgba(255,255,255,0.1)', true: '#f7941d' }}
           thumbColor="#fff"
         />
       </View>
@@ -237,35 +238,35 @@ export default function PersonalRegisterScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
+      <GradientButton
         style={[styles.submitBtn, (!form.full_name || !form.cref || submit.isPending) && styles.submitBtnDisabled]}
+        contentStyle={styles.submitBtnContent}
         onPress={() => submit.mutate()}
         disabled={!form.full_name || !form.cref || submit.isPending}
       >
-        <Text style={styles.submitBtnText}>{submit.isPending ? 'Enviando...' : 'Enviar Cadastro'}</Text>
-      </TouchableOpacity>
+        {submit.isPending ? 'Enviando...' : 'Enviar Cadastro'}
+      </GradientButton>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 40 },
-  centerScreen: { flex: 1, backgroundColor: '#0a0a0a', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  successIcon: { width: 64, height: 64, borderRadius: 16, backgroundColor: 'rgba(245,166,35,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  centerScreen: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  successIcon: { width: 64, height: 64, borderRadius: 16, backgroundColor: 'rgba(247,148,29,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   centerTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 8 },
   centerSubtitle: { color: 'rgba(255,255,255,0.5)', fontSize: 14, textAlign: 'center', marginBottom: 24 },
-  primaryBtn: { backgroundColor: '#F5A623', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 12 },
-  primaryBtnText: { color: '#000', fontWeight: '700' },
+  primaryBtn: { paddingHorizontal: 24 },
   backBtn: { alignSelf: 'flex-start', padding: 8, marginBottom: 8 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  subtitle: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20 },
+  subtitle: { fontSize: 12, color: '#fff', marginBottom: 20 },
   photoRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 20 },
   photo: { width: 80, height: 80, borderRadius: 16 },
   photoPlaceholder: { width: 80, height: 80, borderRadius: 16, backgroundColor: '#141414', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' },
-  uploadLink: { color: '#F5A623', fontSize: 14, fontWeight: '500' },
+  uploadLink: { color: '#f7941d', fontSize: 14, fontWeight: '500' },
   field: { marginBottom: 16 },
-  fieldLabel: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 6 },
+  fieldLabel: { fontSize: 12, color: '#fff', marginBottom: 6 },
   input: {
     backgroundColor: '#141414',
     borderWidth: 1,
@@ -286,9 +287,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
-  specialtyBtnActive: { backgroundColor: '#F5A623', borderColor: 'transparent' },
+  specialtyBtnActive: { backgroundColor: '#f89b14', borderColor: 'transparent', borderRadius: 14 },
   specialtyText: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.5)' },
-  specialtyTextActive: { color: '#000' },
+  specialtyTextActive: { color: '#1a1a1a' },
   switchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -301,7 +302,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   switchLabel: { fontSize: 14, fontWeight: '500', color: '#fff' },
-  switchHint: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 },
+  switchHint: { fontSize: 12, color: '#fff', marginTop: 4 },
   docRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -313,10 +314,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 24,
   },
-  docBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: 'rgba(245,166,35,0.2)' },
+  docBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: 'rgba(247,148,29,0.2)' },
   docBtnDone: { backgroundColor: 'rgba(34,197,94,0.2)' },
-  docBtnText: { fontSize: 12, fontWeight: '600', color: '#F5A623' },
-  submitBtn: { backgroundColor: '#F5A623', paddingVertical: 16, borderRadius: 16, alignItems: 'center' },
+  docBtnText: { fontSize: 12, fontWeight: '600', color: '#f7941d' },
+  submitBtn: {},
+  submitBtnContent: { paddingVertical: 16, borderRadius: 16 },
   submitBtnDisabled: { opacity: 0.3 },
-  submitBtnText: { color: '#000', fontWeight: '700', fontSize: 16 },
 });

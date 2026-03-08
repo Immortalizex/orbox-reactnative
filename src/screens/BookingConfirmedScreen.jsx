@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Ionicons } from '@expo/vector-icons';
+import GradientButton from '../components/GradientButton';
 
 export default function BookingConfirmedScreen() {
   const route = useRoute();
@@ -42,7 +43,7 @@ export default function BookingConfirmedScreen() {
   if (!booking) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#F5A623" />
+        <ActivityIndicator size="large" color="#f7941d" />
       </View>
     );
   }
@@ -57,7 +58,7 @@ export default function BookingConfirmedScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
         <View style={styles.heroIcon}>
-          <Ionicons name="checkmark-circle" size={40} color="#F5A623" />
+          <Ionicons name="checkmark-circle" size={40} color="#f7941d" />
         </View>
         <Text style={styles.heroTitle}>Reserva Confirmada!</Text>
         <Text style={styles.heroSub}>Tudo pronto para o seu treino</Text>
@@ -66,7 +67,7 @@ export default function BookingConfirmedScreen() {
       <View style={styles.card}>
         <View style={styles.cardRow}>
           <View style={styles.cardIcon}>
-            <Ionicons name="flash" size={20} color="#F5A623" />
+            <Ionicons name="flash" size={20} color="#f7941d" />
           </View>
           <View>
             <Text style={styles.boxName}>{booking.box_name}</Text>
@@ -78,14 +79,14 @@ export default function BookingConfirmedScreen() {
           <View>
             <Text style={styles.detailLabel}>Data</Text>
             <Text style={styles.detailValue}>
-              <Ionicons name="calendar" size={14} color="#F5A623" />{' '}
+              <Ionicons name="calendar" size={14} color="#f7941d" />{' '}
               {format(new Date(booking.date), 'dd MMM yyyy', { locale: ptBR })}
             </Text>
           </View>
           <View>
             <Text style={styles.detailLabel}>Horário</Text>
             <Text style={styles.detailValue}>
-              <Ionicons name="time" size={14} color="#F5A623" />{' '}
+              <Ionicons name="time" size={14} color="#f7941d" />{' '}
               {booking.start_time} — {booking.end_time}
             </Text>
           </View>
@@ -114,23 +115,23 @@ export default function BookingConfirmedScreen() {
 
       <View style={styles.checklist}>
         <View style={styles.checklistHeader}>
-          <Ionicons name="shield-checkmark" size={16} color="#F5A623" />
+          <Ionicons name="shield-checkmark" size={16} color="#f7941d" />
           <Text style={styles.checklistTitle}>Checklist antes da sessão</Text>
         </View>
         {checklist.map((item, i) => (
           <View key={i} style={styles.checkItem}>
-            <Ionicons name="checkmark-circle" size={16} color="rgba(245,166,35,0.5)" />
+            <Ionicons name="checkmark-circle" size={16} color="rgba(247,148,29,0.5)" />
             <Text style={styles.checkText}>{item}</Text>
           </View>
         ))}
       </View>
 
-      <TouchableOpacity
+      <GradientButton
         style={styles.primaryBtn}
         onPress={() => rootNav.navigate('MyBookings')}
       >
-        <Text style={styles.primaryBtnText}>Ver Minhas Reservas</Text>
-      </TouchableOpacity>
+        Ver Minhas Reservas
+      </GradientButton>
       <TouchableOpacity style={styles.secondaryBtn} onPress={() => rootNav.navigate('Main')}>
         <Text style={styles.secondaryBtnText}>Voltar ao Início</Text>
       </TouchableOpacity>
@@ -139,23 +140,23 @@ export default function BookingConfirmedScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 40 },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(10,10,10,0.95)' },
   hero: { alignItems: 'center', paddingVertical: 24 },
   heroIcon: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(245,166,35,0.15)',
+    backgroundColor: 'rgba(247,148,29,0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.3)',
+    borderColor: 'rgba(247,148,29,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   heroTitle: { fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  heroSub: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
+  heroSub: { fontSize: 14, color: '#fff' },
   card: {
     backgroundColor: '#141414',
     borderWidth: 1,
@@ -169,27 +170,27 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: 'rgba(245,166,35,0.1)',
+    backgroundColor: 'rgba(247,148,29,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   boxName: { fontSize: 16, fontWeight: '700', color: '#fff' },
-  boxAddress: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  boxAddress: { fontSize: 12, color: '#fff' },
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.05)', marginVertical: 16 },
   details: { flexDirection: 'row', gap: 24 },
   detailLabel: { fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 4 },
   detailValue: { fontSize: 14, fontWeight: '500', color: '#fff' },
   accessCode: {
     marginTop: 16,
-    backgroundColor: 'rgba(245,166,35,0.05)',
+    backgroundColor: 'rgba(247,148,29,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.2)',
+    borderColor: 'rgba(247,148,29,0.2)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
-  accessCodeLabel: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 4 },
-  accessCodeValue: { fontSize: 28, fontWeight: '700', color: '#F5A623', letterSpacing: 6 },
+  accessCodeLabel: { fontSize: 12, color: '#fff', marginBottom: 4 },
+  accessCodeValue: { fontSize: 28, fontWeight: '700', color: '#f7941d', letterSpacing: 6 },
   accessCodeHint: { fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 },
   mapCard: {
     flexDirection: 'row',
@@ -211,7 +212,7 @@ const styles = StyleSheet.create({
   },
   mapCardBody: { flex: 1, marginLeft: 12 },
   mapCardTitle: { fontSize: 14, fontWeight: '500', color: '#fff' },
-  mapCardAddress: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  mapCardAddress: { fontSize: 12, color: '#fff' },
   checklist: {
     backgroundColor: '#141414',
     borderWidth: 1,
@@ -224,14 +225,7 @@ const styles = StyleSheet.create({
   checklistTitle: { fontSize: 14, fontWeight: '600', color: '#fff' },
   checkItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 },
   checkText: { flex: 1, fontSize: 14, color: 'rgba(255,255,255,0.6)' },
-  primaryBtn: {
-    backgroundColor: '#F5A623',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  primaryBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  primaryBtn: { marginBottom: 12 },
   secondaryBtn: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     paddingVertical: 16,

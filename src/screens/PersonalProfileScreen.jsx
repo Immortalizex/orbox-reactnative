@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 const LEVEL_LABELS = {
   trainee: { label: 'Trainee', color: 'rgba(255,255,255,0.5)', bg: 'rgba(255,255,255,0.05)' },
   certified: { label: 'Certificado', color: '#60a5fa', bg: 'rgba(59,130,246,0.2)' },
-  premium: { label: 'Premium', color: '#F5A623', bg: 'rgba(245,166,35,0.2)' },
+  premium: { label: 'Premium', color: '#f7941d', bg: 'rgba(247,148,29,0.2)' },
 };
 
 export default function PersonalProfileScreen() {
@@ -80,7 +80,7 @@ export default function PersonalProfileScreen() {
   if (!personal) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#F5A623" />
+        <ActivityIndicator size="large" color="#f7941d" />
       </View>
     );
   }
@@ -109,7 +109,7 @@ export default function PersonalProfileScreen() {
             </View>
           </View>
           <View style={styles.ratingRow}>
-            <Ionicons name="star" size={14} color="#F5A623" />
+            <Ionicons name="star" size={14} color="#f7941d" />
             <Text style={styles.ratingText}>
               {personal.average_rating?.toFixed(1) || '—'} ({personal.total_ratings || 0} avaliações)
             </Text>
@@ -175,7 +175,7 @@ export default function PersonalProfileScreen() {
                   <Ionicons
                     name={n <= rating ? 'star' : 'star-outline'}
                     size={24}
-                    color="#F5A623"
+                    color="#f7941d"
                   />
                 </TouchableOpacity>
               ))}
@@ -213,7 +213,7 @@ export default function PersonalProfileScreen() {
                     key={n}
                     name={n <= r.rating ? 'star' : 'star-outline'}
                     size={14}
-                    color="#F5A623"
+                    color="#f7941d"
                   />
                 ))}
               </View>
@@ -227,9 +227,9 @@ export default function PersonalProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 40 },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(10,10,10,0.95)' },
   backBtn: {
     position: 'absolute',
     top: 16,
@@ -261,8 +261,8 @@ const styles = StyleSheet.create({
   levelBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   levelText: { fontSize: 12, fontWeight: '700' },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
-  ratingText: { fontSize: 14, color: 'rgba(255,255,255,0.4)' },
-  price: { fontSize: 14, fontWeight: '700', color: '#F5A623', marginTop: 4 },
+  ratingText: { fontSize: 14, color: '#fff' },
+  price: { fontSize: 14, fontWeight: '700', color: '#f7941d', marginTop: 4 },
   statsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
   statCard: {
     flex: 1,
@@ -274,12 +274,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: { fontSize: 18, fontWeight: '700', color: '#fff', marginTop: 4 },
-  statLabel: { fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginTop: 2 },
+  statLabel: { fontSize: 10, color: '#fff', textTransform: 'uppercase', marginTop: 2 },
   section: { marginBottom: 20 },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'rgba(255,255,255,0.4)',
+    color: '#fff',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 8,
@@ -290,24 +290,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: 'rgba(245,166,35,0.1)',
+    backgroundColor: 'rgba(247,148,29,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.2)',
+    borderColor: 'rgba(247,148,29,0.2)',
   },
-  specialtyText: { fontSize: 12, color: '#F5A623', fontWeight: '500' },
+  specialtyText: { fontSize: 12, color: '#f7941d', fontWeight: '500' },
   bookCta: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#F5A623',
+    backgroundColor: '#f7941d',
     paddingVertical: 16,
     borderRadius: 16,
     marginBottom: 24,
   },
   bookCtaText: { color: '#000', fontWeight: '700', fontSize: 16 },
   reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  addReviewLink: { fontSize: 12, color: '#F5A623', fontWeight: '600' },
+  addReviewLink: { fontSize: 12, color: '#f7941d', fontWeight: '600' },
   reviewForm: {
     backgroundColor: '#141414',
     borderWidth: 1,
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   submitReviewBtn: {
-    backgroundColor: '#F5A623',
+    backgroundColor: '#f7941d',
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',

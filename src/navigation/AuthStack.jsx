@@ -10,7 +10,7 @@ export default function AuthStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#0a0a0a' },
+        contentStyle: { backgroundColor: 'rgba(10,10,10,0.95)' },
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />

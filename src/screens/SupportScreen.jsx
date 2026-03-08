@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
+import GradientButton from '../components/GradientButton';
 import { Ionicons } from '@expo/vector-icons';
 
 const categoryLabels = {
@@ -77,24 +78,26 @@ export default function SupportScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Suporte</Text>
-        <TouchableOpacity
+        <GradientButton
           style={styles.newTicketBtn}
+          contentStyle={styles.newTicketBtnContent}
+          row
           onPress={() => setShowForm(!showForm)}
         >
-          <Ionicons name="add" size={16} color="#000" />
+          <Ionicons name="add" size={16} color="#1a1a1a" />
           <Text style={styles.newTicketBtnText}>Novo Ticket</Text>
-        </TouchableOpacity>
+        </GradientButton>
       </View>
 
       <View style={styles.quickHelp}>
         {[
           { icon: 'help-circle', label: 'FAQ', desc: 'Perguntas frequentes' },
-          { icon: 'call', label: 'Telefone', desc: '(11) 9999-9999' },
-          { icon: 'mail', label: 'Email', desc: 'suporte@orbox.com' },
+          { icon: 'call', label: 'Telefone', desc: '(11) 99480-5893' },
+          { icon: 'mail', label: 'Email', desc: 'contato@orbox.com.br' },
         ].map((item, i) => (
           <View key={i} style={styles.quickCard}>
             <View style={styles.quickIcon}>
-              <Ionicons name={item.icon} size={20} color="rgba(255,255,255,0.4)" />
+              <Ionicons name={item.icon} size={20} color="#fff" />
             </View>
             <View>
               <Text style={styles.quickLabel}>{item.label}</Text>
@@ -146,14 +149,16 @@ export default function SupportScreen() {
               <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowForm(false)} disabled={createTicket.isPending}>
                 <Text style={styles.cancelBtnText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.submitBtn, (!subject || !message || !user || createTicket.isPending) && styles.submitBtnDisabled]}
+              <GradientButton
+                style={(!subject || !message || !user || createTicket.isPending) && styles.submitBtnDisabled}
+                contentStyle={styles.submitBtnContent}
+                row
                 onPress={handleSubmit}
                 disabled={!subject || !message || !user || createTicket.isPending}
               >
-                <Ionicons name="send" size={16} color="#000" />
+                <Ionicons name="send" size={16} color="#1a1a1a" />
                 <Text style={styles.submitBtnText}>{createTicket.isPending ? 'Enviando…' : 'Enviar'}</Text>
-              </TouchableOpacity>
+              </GradientButton>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -193,20 +198,13 @@ export default function SupportScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff' },
-  newTicketBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#F5A623',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  newTicketBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  newTicketBtn: { alignSelf: 'flex-start' },
+  newTicketBtnContent: { paddingHorizontal: 14, paddingVertical: 8, minHeight: 40, borderRadius: 14 },
+  newTicketBtnText: { color: '#1a1a1a', fontWeight: '700', fontSize: 14 },
   quickHelp: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -228,7 +226,7 @@ const styles = StyleSheet.create({
   },
   quickIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' },
   quickLabel: { fontSize: 14, fontWeight: '500', color: '#fff' },
-  quickDesc: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 },
+  quickDesc: { fontSize: 12, color: '#fff', marginTop: 2 },
   form: {
     backgroundColor: '#141414',
     borderWidth: 1,
@@ -243,15 +241,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  categoryBtnActive: { backgroundColor: '#F5A623', borderColor: 'transparent' },
+  categoryBtnActive: { backgroundColor: '#f89b14', borderColor: 'transparent', borderRadius: 14 },
   categoryText: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
-  categoryTextActive: { color: '#000', fontWeight: '600' },
+  categoryTextActive: { color: '#1a1a1a', fontWeight: '600' },
   input: {
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: 12,
@@ -266,9 +264,9 @@ const styles = StyleSheet.create({
   formActions: { flexDirection: 'row', gap: 8, justifyContent: 'flex-end', marginTop: 8 },
   cancelBtn: { paddingVertical: 10, paddingHorizontal: 16 },
   cancelBtnText: { color: 'rgba(255,255,255,0.5)' },
-  submitBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F5A623', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  submitBtnContent: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14 },
   submitBtnDisabled: { opacity: 0.5 },
-  submitBtnText: { color: '#000', fontWeight: '700' },
+  submitBtnText: { color: '#1a1a1a', fontWeight: '700' },
   ticketList: { gap: 12 },
   ticketCard: {
     backgroundColor: '#141414',
@@ -283,12 +281,12 @@ const styles = StyleSheet.create({
   ticketMessage: { fontSize: 14, color: 'rgba(255,255,255,0.5)' },
   responseBox: {
     marginTop: 12,
-    backgroundColor: 'rgba(245,166,35,0.05)',
+    backgroundColor: 'rgba(247,148,29,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.1)',
+    borderColor: 'rgba(247,148,29,0.1)',
     borderRadius: 8,
     padding: 12,
   },
-  responseLabel: { fontSize: 12, color: 'rgba(245,166,35,0.6)', fontWeight: '600', marginBottom: 4 },
+  responseLabel: { fontSize: 12, color: 'rgba(247,148,29,0.6)', fontWeight: '600', marginBottom: 4 },
   responseText: { fontSize: 14, color: 'rgba(255,255,255,0.7)' },
 });

@@ -36,7 +36,7 @@ export default function BoxCard({ box, onPress }) {
       <View style={styles.body}>
         <Text style={styles.name}>{box.name}</Text>
         <Text style={styles.address} numberOfLines={1}>
-          <Ionicons name="location" size={12} color="rgba(255,255,255,0.4)" /> {box.address}
+          <Ionicons name="location" size={12} color="#fff" /> {box.address}
         </Text>
         <View style={styles.footer}>
           <Text style={styles.hours}>
@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 11, fontWeight: '600' },
   body: { padding: 16 },
   name: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  address: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12 },
+  address: { fontSize: 12, color: '#fff', marginBottom: 12 },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   hours: { fontSize: 12, color: 'rgba(255,255,255,0.3)' },
-  price: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  price: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
   priceUnit: { fontSize: 12, fontWeight: '400', color: 'rgba(255,255,255,0.3)' },
 });

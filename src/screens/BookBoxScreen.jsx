@@ -15,6 +15,7 @@ import { api } from '../api/client';
 import { format, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Ionicons } from '@expo/vector-icons';
+import GradientButton from '../components/GradientButton';
 
 export default function BookBoxScreen() {
   const route = useRoute();
@@ -126,7 +127,7 @@ export default function BookBoxScreen() {
   if (!box) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#F5A623" />
+        <ActivityIndicator size="large" color="#f7941d" />
       </View>
     );
   }
@@ -149,7 +150,7 @@ export default function BookBoxScreen() {
       <View style={styles.body}>
         <Text style={styles.boxName}>{box.name}</Text>
         <Text style={styles.address}>
-          <Ionicons name="location" size={14} color="rgba(255,255,255,0.4)" /> {box.address}
+          <Ionicons name="location" size={14} color="#fff" /> {box.address}
         </Text>
         <View style={styles.meta}>
           <Text style={styles.metaText}>
@@ -237,7 +238,7 @@ export default function BookBoxScreen() {
             <Ionicons
               name={m.icon}
               size={20}
-              color={paymentMethod === m.key ? '#F5A623' : 'rgba(255,255,255,0.4)'}
+              color={paymentMethod === m.key ? '#f7941d' : '#fff'}
             />
             <Text
               style={[
@@ -248,7 +249,7 @@ export default function BookBoxScreen() {
               {m.label}
             </Text>
             {paymentMethod === m.key && (
-              <Ionicons name="checkmark" size={16} color="#F5A623" />
+              <Ionicons name="checkmark" size={16} color="#f7941d" />
             )}
           </TouchableOpacity>
         ))}
@@ -278,24 +279,23 @@ export default function BookBoxScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
-          style={[styles.bookBtn, (!selectedSlot || booking) && styles.bookBtnDisabled]}
+        <GradientButton
+          style={(!selectedSlot || booking) && styles.bookBtnDisabled}
+          contentStyle={styles.bookBtnContent}
           onPress={handleBook}
           disabled={!selectedSlot || booking}
         >
-          <Text style={styles.bookBtnText}>
-            {booking ? 'Confirmando...' : 'Confirmar Reserva'}
-          </Text>
-        </TouchableOpacity>
+          {booking ? 'Confirmando...' : 'Confirmar Reserva'}
+        </GradientButton>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { paddingBottom: 32 },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(10,10,10,0.95)' },
   hero: { height: 224, backgroundColor: '#141414', position: 'relative' },
   heroImage: { width: '100%', height: '100%', opacity: 0.6 },
   heroPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -310,12 +310,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  body: { padding: 16, marginTop: -40, backgroundColor: '#0a0a0a', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
+  body: { padding: 16, marginTop: -40, backgroundColor: 'rgba(10,10,10,0.95)', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
   boxName: { fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 8 },
-  address: { fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 12 },
+  address: { fontSize: 14, color: '#fff', marginBottom: 12 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 20 },
   metaText: { fontSize: 14, color: 'rgba(255,255,255,0.5)' },
-  price: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  price: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '600',
@@ -335,11 +335,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
     alignItems: 'center',
   },
-  dateBtnActive: { backgroundColor: '#F5A623', borderColor: 'transparent' },
+  dateBtnActive: { backgroundColor: '#f89b14', borderColor: 'transparent', borderRadius: 14 },
   dateLabel: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' },
-  dateLabelActive: { color: '#000' },
+  dateLabelActive: { color: '#1a1a1a' },
   dateDay: { fontSize: 18, fontWeight: '700', color: 'rgba(255,255,255,0.6)' },
-  dateDayActive: { color: '#000' },
+  dateDayActive: { color: '#1a1a1a' },
   slotsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
   slotBtn: {
     width: '23%',
@@ -350,10 +350,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.05)',
     alignItems: 'center',
   },
-  slotBtnActive: { backgroundColor: '#F5A623', borderColor: 'transparent' },
+  slotBtnActive: { backgroundColor: '#f89b14', borderColor: 'transparent', borderRadius: 14 },
   slotBtnDisabled: { opacity: 0.4 },
   slotText: { fontSize: 14, fontWeight: '500', color: 'rgba(255,255,255,0.6)' },
-  slotTextActive: { color: '#000' },
+  slotTextActive: { color: '#1a1a1a' },
   slotTextDisabled: { color: 'rgba(255,255,255,0.2)' },
   durationRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
   durationBtn: {
@@ -366,11 +366,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   durationBtnActive: {
-    backgroundColor: 'rgba(245,166,35,0.15)',
-    borderColor: 'rgba(245,166,35,0.3)',
+    backgroundColor: 'rgba(247,148,29,0.15)',
+    borderColor: 'rgba(247,148,29,0.3)',
   },
   durationText: { fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.5)' },
-  durationTextActive: { color: '#F5A623' },
+  durationTextActive: { color: '#f7941d' },
   paymentRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -383,8 +383,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   paymentRowActive: {
-    borderColor: 'rgba(245,166,35,0.3)',
-    backgroundColor: 'rgba(245,166,35,0.05)',
+    borderColor: 'rgba(247,148,29,0.3)',
+    backgroundColor: 'rgba(247,148,29,0.05)',
   },
   paymentLabel: { flex: 1, fontSize: 14, fontWeight: '500', color: 'rgba(255,255,255,0.6)' },
   paymentLabelActive: { color: '#fff' },
@@ -401,13 +401,8 @@ const styles = StyleSheet.create({
   summaryTotal: { marginTop: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
   summaryLabel: { fontSize: 14, color: 'rgba(255,255,255,0.5)' },
   summaryValue: { fontSize: 14, fontWeight: '500', color: '#fff' },
-  totalValue: { fontSize: 20, fontWeight: '700', color: '#F5A623' },
-  bookBtn: {
-    backgroundColor: '#F5A623',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
+  totalValue: { fontSize: 20, fontWeight: '700', color: '#f7941d' },
+  bookBtn: {},
+  bookBtnContent: { paddingVertical: 16, borderRadius: 16 },
   bookBtnDisabled: { opacity: 0.3 },
-  bookBtnText: { color: '#000', fontWeight: '700', fontSize: 16 },
 });

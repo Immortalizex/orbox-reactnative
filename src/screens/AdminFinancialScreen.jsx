@@ -31,7 +31,7 @@ export default function AdminFinancialScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20 },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },

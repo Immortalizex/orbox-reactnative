@@ -28,7 +28,7 @@ export default function AdminPersonaisScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20 },
   card: {
@@ -42,6 +42,6 @@ const styles = StyleSheet.create({
   name: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 4 },
   meta: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 8 },
   statusWrap: {},
-  status: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  status: { fontSize: 12, color: '#fff' },
   statusActive: { color: '#4ade80' },
 });

@@ -33,7 +33,7 @@ export default function AdminBookingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20 },
   card: {
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   user: { fontSize: 14, fontWeight: '600', color: '#fff', marginBottom: 4 },
   box: { fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 4 },
-  meta: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 8 },
+  meta: { fontSize: 12, color: '#fff', marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  price: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  price: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
 });

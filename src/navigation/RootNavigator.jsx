@@ -36,7 +36,7 @@ export default function RootNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#0a0a0a' },
+          contentStyle: { backgroundColor: 'rgba(10,10,10,0.95)' },
         }}
       >
         {!isAuthenticated ? (

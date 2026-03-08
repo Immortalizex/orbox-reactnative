@@ -17,6 +17,7 @@ import { api } from '../api/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import StatusBadge from '../components/StatusBadge';
+import GradientButton from '../components/GradientButton';
 import EmptyState from '../components/EmptyState';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -82,7 +83,7 @@ function FilterDropdown({ label, value, options, onSelect, placeholder }) {
                 <Text style={[dropdownStyles.optionText, opt.value === value && dropdownStyles.optionTextActive]}>
                   {opt.label}
                 </Text>
-                {opt.value === value && <Ionicons name="checkmark" size={18} color="#F5A623" />}
+                {opt.value === value && <Ionicons name="checkmark" size={18} color="#f7941d" />}
               </TouchableOpacity>
             ))}
             </View>
@@ -95,7 +96,7 @@ function FilterDropdown({ label, value, options, onSelect, placeholder }) {
 
 const dropdownStyles = StyleSheet.create({
   wrap: { flex: 1 },
-  label: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
+  label: { fontSize: 11, fontWeight: '600', color: '#fff', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -111,9 +112,9 @@ const dropdownStyles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 24 },
   modalContent: { backgroundColor: '#1a1a1a', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
-  optionActive: { backgroundColor: 'rgba(245,166,35,0.1)' },
+  optionActive: { backgroundColor: 'rgba(247,148,29,0.1)' },
   optionText: { fontSize: 15, color: 'rgba(255,255,255,0.9)' },
-  optionTextActive: { color: '#F5A623', fontWeight: '600' },
+  optionTextActive: { color: '#f7941d', fontWeight: '600' },
 });
 
 export default function AdminSupportTicketsScreen() {
@@ -174,7 +175,7 @@ export default function AdminSupportTicketsScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Ionicons name="ticket" size={20} color="#F5A623" />
+        <Ionicons name="ticket" size={20} color="#f7941d" />
         <Text style={styles.title}>Tickets de Suporte</Text>
       </View>
 
@@ -204,7 +205,7 @@ export default function AdminSupportTicketsScreen() {
 
       {isLoading ? (
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color="#F5A623" />
+          <ActivityIndicator size="large" color="#f7941d" />
         </View>
       ) : tickets.length === 0 ? (
         <EmptyState
@@ -233,7 +234,7 @@ export default function AdminSupportTicketsScreen() {
                   <Ionicons
                     name={expandedId === ticket.id ? 'chevron-up' : 'chevron-down'}
                     size={20}
-                    color="rgba(255,255,255,0.4)"
+                    color="#fff"
                   />
                 </View>
               </TouchableOpacity>
@@ -277,20 +278,22 @@ export default function AdminSupportTicketsScreen() {
                     <TouchableOpacity style={styles.cancelBtn} onPress={() => { setExpandedId(null); setEditStatus(''); setEditResponse(''); }}>
                       <Text style={styles.cancelBtnText}>Fechar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
+                    <GradientButton
                       style={[styles.saveBtn, updateTicket.isPending && styles.saveBtnDisabled]}
+                      contentStyle={styles.saveBtnContent}
+                      row
                       onPress={() => handleSaveTicket(ticket)}
                       disabled={updateTicket.isPending}
                     >
                       {updateTicket.isPending ? (
-                        <ActivityIndicator size="small" color="#000" />
+                        <ActivityIndicator size="small" color="#1a1a1a" />
                       ) : (
                         <>
-                          <Ionicons name="checkmark" size={16} color="#000" />
+                          <Ionicons name="checkmark" size={16} color="#1a1a1a" />
                           <Text style={styles.saveBtnText}>Salvar</Text>
                         </>
                       )}
-                    </TouchableOpacity>
+                    </GradientButton>
                   </View>
                 </View>
               )}
@@ -303,7 +306,7 @@ export default function AdminSupportTicketsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 20 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff' },
@@ -321,11 +324,11 @@ const styles = StyleSheet.create({
   cardHeaderLeft: { flex: 1, marginRight: 12 },
   cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   subject: { fontSize: 15, fontWeight: '600', color: '#fff', marginBottom: 4 },
-  meta: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  meta: { fontSize: 12, color: '#fff' },
   expanded: { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', padding: 16 },
-  messageLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4 },
+  messageLabel: { fontSize: 11, color: '#fff', marginBottom: 4 },
   message: { fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 12 },
-  responseLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4 },
+  responseLabel: { fontSize: 11, color: '#fff', marginBottom: 4 },
   responseText: { fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 12 },
   editLabel: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginBottom: 8 },
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
@@ -333,15 +336,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  statusBtnActive: { backgroundColor: '#F5A623', borderColor: 'transparent' },
+  statusBtnActive: { backgroundColor: '#f89b14', borderColor: 'transparent', borderRadius: 14 },
   statusBtnText: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
-  statusBtnTextActive: { color: '#000', fontWeight: '600' },
+  statusBtnTextActive: { color: '#1a1a1a', fontWeight: '600' },
   input: {
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: 12,
@@ -356,7 +359,8 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
   cancelBtn: { paddingVertical: 10, paddingHorizontal: 16 },
   cancelBtnText: { color: 'rgba(255,255,255,0.5)' },
-  saveBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F5A623', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  saveBtn: {},
+  saveBtnContent: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14 },
   saveBtnDisabled: { opacity: 0.6 },
-  saveBtnText: { color: '#000', fontWeight: '700' },
+  saveBtnText: { color: '#1a1a1a', fontWeight: '700' },
 });

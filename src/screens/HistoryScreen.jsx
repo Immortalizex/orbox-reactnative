@@ -35,14 +35,18 @@ export default function HistoryScreen() {
       <Text style={styles.title}>Histórico</Text>
 
       <View style={styles.statsGrid}>
-        <QuickStatCard iconName="barbell" label="Sessões" value={completed.length} accent />
-        <QuickStatCard iconName="time" label="Horas" value={`${totalHours.toFixed(0)}h`} />
-        <QuickStatCard iconName="card" label="Total Gasto" value={`R$ ${totalSpent.toFixed(0)}`} />
-        <QuickStatCard
-          iconName="trending-up"
-          label="Média/Sessão"
-          value={completed.length > 0 ? `R$ ${(totalSpent / completed.length).toFixed(0)}` : 'R$ 0'}
-        />
+        <View style={styles.statsRow}>
+          <QuickStatCard iconName="barbell" label="Sessões" value={completed.length} accent />
+          <QuickStatCard iconName="time" label="Horas" value={`${totalHours.toFixed(0)}h`} />
+        </View>
+        <View style={[styles.statsRow, styles.statsRowLast]}>
+          <QuickStatCard iconName="card" label="Total Gasto" value={`R$ ${totalSpent.toFixed(0)}`} />
+          <QuickStatCard
+            iconName="trending-up"
+            label="Média/Sessão"
+            value={completed.length > 0 ? `R$ ${(totalSpent / completed.length).toFixed(0)}` : 'R$ 0'}
+          />
+        </View>
       </View>
 
       {bookings.length === 0 ? (
@@ -84,10 +88,12 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20 },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 },
+  statsGrid: { marginBottom: 24 },
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  statsRowLast: { marginBottom: 0 },
   list: { gap: 12 },
   card: {
     flexDirection: 'row',
@@ -102,8 +108,8 @@ const styles = StyleSheet.create({
   cardLeft: { flex: 1 },
   cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   boxName: { fontSize: 14, fontWeight: '600', color: '#fff' },
-  meta: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  meta: { fontSize: 12, color: '#fff' },
   cardRight: { alignItems: 'flex-end' },
-  price: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  price: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
   payment: { fontSize: 12, color: 'rgba(255,255,255,0.3)' },
 });

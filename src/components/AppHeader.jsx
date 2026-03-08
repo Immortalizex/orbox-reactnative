@@ -1,27 +1,70 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Modal, Pressable, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Modal,
+  Pressable,
+  Image,
+  useWindowDimensions,
+  Animated,
+  ScrollView,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { OrBoxLogoFull } from '../components/OrBoxLogo';
 
-const ACCENT = '#F5A623';
+const ACCENT = '#f7941d';
 const SIDEBAR_BG = '#1A1A1A';
 const SIDEBAR_SELECTED_BG = 'rgba(245, 165, 35, 0.18)';
 const SIDEBAR_INACTIVE = '#CCCCCC';
 const SIDEBAR_LOGOUT = '#F44336';
-const HEADER_HEIGHT = 56;
-const TAB_BAR_HEIGHT = 56;
 
-export default function AppHeader({ isAdmin }) {
+// Shared layout constants (used for sidebar positioning and by layout logic)
+export const HEADER_HEIGHT = 56;
+export const TAB_BAR_HEIGHT = 56;
+const SIDEBAR_WIDTH = 240;
+
+export default function AppHeader({ isAdmin, hasHeader = true }) {
   const insets = useSafeAreaInsets();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const navigation = useNavigation();
   const { user, logout } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(SIDEBAR_WIDTH)).current;
 
-  const headerTotalHeight = insets.top + HEADER_HEIGHT;
+  const headerTotalHeight = hasHeader ? insets.top + HEADER_HEIGHT : 0;
   const tabBarTotalHeight = TAB_BAR_HEIGHT + insets.bottom;
+
+  // Layout mode: isAdmin = false → Main (header + bottom nav), sidebar between them.
+  // isAdmin = true → Admin (header only, no bottom nav), sidebar from below header to bottom.
+  // hasHeader = false → drawer full screen vertically (e.g. layout without header).
+  const sidebarTop = headerTotalHeight;
+  const sidebarBottom = isAdmin ? 0 : tabBarTotalHeight;
+  const sidebarHeight = windowHeight - sidebarTop - sidebarBottom;
+
+  useEffect(() => {
+    if (menuVisible) {
+      slideAnim.setValue(SIDEBAR_WIDTH);
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 65,
+        friction: 11,
+      }).start();
+    }
+  }, [menuVisible, slideAnim]);
+
+  const closeMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: SIDEBAR_WIDTH,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => setMenuVisible(false));
+  };
 
   const currentPage = useNavigationState((state) => {
     if (!state?.routes?.[state.index]) return 'Home';
@@ -37,7 +80,7 @@ export default function AppHeader({ isAdmin }) {
   });
 
   const handleLogout = async () => {
-    setMenuVisible(false);
+    closeMenu();
     await logout(false);
     let root = navigation;
     while (root.getParent()) root = root.getParent();
@@ -45,7 +88,7 @@ export default function AppHeader({ isAdmin }) {
   };
 
   const openAdmin = () => {
-    setMenuVisible(false);
+    closeMenu();
     navigation.navigate(isAdmin ? 'Main' : 'Admin');
   };
 
@@ -60,7 +103,7 @@ export default function AppHeader({ isAdmin }) {
   ];
 
   const onMenuPress = (item) => {
-    setMenuVisible(false);
+    closeMenu();
     if (item.screen) {
       navigation.navigate(item.route, { screen: item.screen });
     } else {
@@ -113,7 +156,7 @@ export default function AppHeader({ isAdmin }) {
               </TouchableOpacity>
             )}
             <TouchableOpacity
-              onPress={() => setMenuVisible(!menuVisible)}
+              onPress={() => (menuVisible ? closeMenu() : setMenuVisible(true))}
               style={styles.menuBtn}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
@@ -130,52 +173,91 @@ export default function AppHeader({ isAdmin }) {
         visible={menuVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setMenuVisible(false)}
+        onRequestClose={closeMenu}
+        statusBarTranslucent
       >
-        <View style={styles.menuBackdrop}>
-          <Pressable
-            style={[styles.menuHeaderStrip, { height: headerTotalHeight }]}
-            onPress={() => setMenuVisible(false)}
-          />
-          <View style={styles.menuMiddleRow}>
+        <View
+          style={[
+            styles.menuBackdrop,
+            {
+              width: windowWidth,
+              height: windowHeight,
+              top: 0,
+              left: 0,
+            },
+          ]}
+          pointerEvents="box-none"
+        >
+          {/* Tappable strip over header area so X button tap closes the menu (modal is on top) */}
+          {sidebarTop > 0 && (
             <Pressable
-              style={styles.menuBackdropTouchable}
-              onPress={() => setMenuVisible(false)}
+              style={[styles.menuHeaderStrip, { height: sidebarTop }]}
+              onPress={closeMenu}
             />
-            <View style={[styles.menuPanel, { paddingBottom: 16 + insets.bottom }]}>
+          )}
+          {/* Overlay: only covers content area between header and (on normal) tab bar */}
+          <Pressable
+            style={[
+              styles.menuOverlay,
+              {
+                top: sidebarTop,
+                left: 0,
+                right: 0,
+                bottom: sidebarBottom,
+              },
+            ]}
+            onPress={closeMenu}
+          />
+          {/* Sidebar: pinned between header and tab bar (or full below header on admin) */}
+          <Animated.View
+            style={[
+              styles.menuPanelWrap,
+              {
+                top: sidebarTop,
+                bottom: sidebarBottom,
+                width: SIDEBAR_WIDTH,
+                height: undefined,
+                transform: [{ translateX: slideAnim }],
+              },
+            ]}
+          >
+            <ScrollView
+              style={styles.menuPanelScroll}
+              contentContainerStyle={[styles.menuPanel, { paddingBottom: 16 + (isAdmin ? 0 : insets.bottom) }]}
+              showsVerticalScrollIndicator={false}
+            >
               {menuItems.map((item) => {
-              const isActive = currentPage === item.activeWhen;
-              return (
-                <TouchableOpacity
-                  key={item.key}
-                  style={[styles.menuItem, isActive && styles.menuItemActive]}
-                  onPress={() => onMenuPress(item)}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name={item.icon}
-                    size={22}
-                    color={isActive ? ACCENT : SIDEBAR_INACTIVE}
-                  />
-                  <Text style={[styles.menuItemText, isActive && styles.menuItemTextActive]}>
-                    {item.label}
-                  </Text>
+                const isActive = currentPage === item.activeWhen;
+                return (
+                  <TouchableOpacity
+                    key={item.key}
+                    style={[styles.menuItem, isActive && styles.menuItemActive]}
+                    onPress={() => onMenuPress(item)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={item.icon}
+                      size={22}
+                      color={isActive ? ACCENT : SIDEBAR_INACTIVE}
+                    />
+                    <Text style={[styles.menuItemText, isActive && styles.menuItemTextActive]}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+              {user?.role === 'admin' && (
+                <TouchableOpacity style={styles.menuItem} onPress={openAdmin} activeOpacity={0.7}>
+                  <Ionicons name="shield-outline" size={22} color={SIDEBAR_INACTIVE} />
+                  <Text style={styles.menuItemText}>{isAdmin ? 'Ir para App' : 'Painel Admin'}</Text>
                 </TouchableOpacity>
-              );
-            })}
-            {user?.role === 'admin' && (
-              <TouchableOpacity style={styles.menuItem} onPress={openAdmin} activeOpacity={0.7}>
-                <Ionicons name="shield-outline" size={22} color={SIDEBAR_INACTIVE} />
-                <Text style={styles.menuItemText}>{isAdmin ? 'Ir para App' : 'Painel Admin'}</Text>
+              )}
+              <TouchableOpacity style={[styles.menuItem, styles.menuItemSair]} onPress={handleLogout} activeOpacity={0.7}>
+                <Ionicons name="log-out-outline" size={22} color={SIDEBAR_LOGOUT} />
+                <Text style={styles.menuItemTextSair}>Sair</Text>
               </TouchableOpacity>
-            )}
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemSair]} onPress={handleLogout} activeOpacity={0.7}>
-              <Ionicons name="log-out-outline" size={22} color={SIDEBAR_LOGOUT} />
-              <Text style={styles.menuItemTextSair}>Sair</Text>
-            </TouchableOpacity>
-          </View>
-          </View>
-          <View style={[styles.menuTabBarStrip, { height: tabBarTotalHeight }]} />
+            </ScrollView>
+          </Animated.View>
         </View>
       </Modal>
     </>
@@ -213,7 +295,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(245,166,35,0.3)',
+    backgroundColor: 'rgba(247,148,29,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -231,7 +313,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: 'rgba(90,70,50,0.95)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.25)',
+    borderColor: 'rgba(247,148,29,0.25)',
     shadowColor: ACCENT,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
@@ -248,31 +330,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   menuBackdrop: {
+    position: 'absolute',
     flex: 1,
-    flexDirection: 'column',
   },
   menuHeaderStrip: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     backgroundColor: 'transparent',
+    zIndex: 2,
   },
-  menuMiddleRow: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  menuBackdropTouchable: {
-    flex: 1,
+  menuOverlay: {
+    position: 'absolute',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  menuPanel: {
-    width: 240,
-    alignSelf: 'stretch',
+  menuPanelWrap: {
+    position: 'absolute',
+    right: 0,
     backgroundColor: SIDEBAR_BG,
     borderLeftWidth: 1,
     borderLeftColor: 'rgba(255,255,255,0.06)',
+    zIndex: 1,
+  },
+  menuPanelScroll: {
+    flex: 1,
+  },
+  menuPanel: {
     paddingHorizontal: 12,
     paddingTop: 16,
-  },
-  menuTabBarStrip: {
-    backgroundColor: 'transparent',
   },
   menuItem: {
     flexDirection: 'row',

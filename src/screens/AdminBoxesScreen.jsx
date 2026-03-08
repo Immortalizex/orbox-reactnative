@@ -31,7 +31,7 @@ export default function AdminBoxesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20 },
   card: {
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
   name: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 4 },
   address: { fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  price: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  price: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
   empty: { color: 'rgba(255,255,255,0.3)', textAlign: 'center', paddingVertical: 24 },
 });

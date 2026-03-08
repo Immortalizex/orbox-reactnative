@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
-  Image,
   Pressable,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
@@ -17,7 +16,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/client';
 import { format, parse, differenceInSeconds } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
-import QRCode from 'qrcode';
+import QRCodeSvg from 'react-native-qrcode-svg';
 
 export default function BoxSessionScreen() {
   const route = useRoute();
@@ -29,7 +28,6 @@ export default function BoxSessionScreen() {
   const [doorOpen, setDoorOpen] = useState(false);
   const [now, setNow] = useState(new Date());
   const [openQrModal, setOpenQrModal] = useState(null);
-  const [qrDataUrl, setQrDataUrl] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -107,14 +105,6 @@ export default function BoxSessionScreen() {
     },
   });
 
-  useEffect(() => {
-    if (!openQrModal?.code) {
-      setQrDataUrl(null);
-      return;
-    }
-    QRCode.toDataURL(openQrModal.code, { width: 280, margin: 2 }).then(setQrDataUrl).catch(() => setQrDataUrl(null));
-  }, [openQrModal?.code]);
-
   const handleOpenDoor = () => {
     requestOpenMutation.mutate(booking.id);
   };
@@ -148,7 +138,7 @@ export default function BoxSessionScreen() {
   if (!booking || !box) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#F5A623" />
+        <ActivityIndicator size="large" color="#f7941d" />
       </View>
     );
   }
@@ -209,13 +199,13 @@ export default function BoxSessionScreen() {
           disabled={doorOpening || requestOpenMutation.isPending}
         >
           {requestOpenMutation.isPending ? (
-            <ActivityIndicator size="small" color="#F5A623" />
+            <ActivityIndicator size="small" color="#f7941d" />
           ) : doorOpening ? (
-            <ActivityIndicator size="small" color="#F5A623" />
+            <ActivityIndicator size="small" color="#f7941d" />
           ) : doorOpen ? (
             <Ionicons name="checkmark-circle" size={24} color="#4ade80" />
           ) : (
-            <Ionicons name="qr-code" size={24} color="#F5A623" />
+            <Ionicons name="qr-code" size={24} color="#f7941d" />
           )}
           <Text style={[styles.actionLabel, doorOpen && styles.actionLabelOpen]}>
             {requestOpenMutation.isPending ? 'Gerando QR...' : doorOpening ? 'Abrindo...' : doorOpen ? 'Aberta!' : 'Abrir Porta (QR)'}
@@ -226,7 +216,7 @@ export default function BoxSessionScreen() {
           style={styles.actionBtnSecondary}
           onPress={() => rootNav.navigate('Main', { screen: 'Support' })}
         >
-          <Ionicons name="headset" size={24} color="rgba(255,255,255,0.4)" />
+          <Ionicons name="headset" size={24} color="#fff" />
           <Text style={styles.actionLabelSecondary}>Suporte</Text>
         </TouchableOpacity>
 
@@ -248,7 +238,7 @@ export default function BoxSessionScreen() {
               <Ionicons
                 name={ctrl.icon}
                 size={20}
-                color={ctrl.active ? '#F5A623' : 'rgba(255,255,255,0.3)'}
+                color={ctrl.active ? '#f7941d' : 'rgba(255,255,255,0.3)'}
               />
             </View>
             <Text style={[styles.controlLabel, ctrl.active && styles.controlLabelActive]}>
@@ -295,11 +285,15 @@ export default function BoxSessionScreen() {
           <Pressable style={styles.qrModalContent} onPress={(e) => e.stopPropagation()}>
             <Text style={styles.qrModalTitle}>Código para abrir o box</Text>
             <Text style={styles.qrModalHint}>Aponte o leitor QR do box para este código</Text>
-            {qrDataUrl ? (
-              <Image source={{ uri: qrDataUrl }} style={styles.qrImage} />
-            ) : (
-              <View style={[styles.qrImage, styles.qrPlaceholder]}>
-                <ActivityIndicator size="large" color="#F5A623" />
+            {openQrModal?.code && (
+              <View style={styles.qrImageWrap}>
+                <QRCodeSvg
+                  value={openQrModal.code}
+                  size={256}
+                  backgroundColor="#fff"
+                  color="#000"
+                  margin={2}
+                />
               </View>
             )}
             {openQrModal?.code && (
@@ -321,8 +315,8 @@ export default function BoxSessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a', maxWidth: 480, alignSelf: 'center', width: '100%' },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)', maxWidth: 480, alignSelf: 'center', width: '100%' },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(10,10,10,0.95)' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -353,11 +347,11 @@ const styles = StyleSheet.create({
   warningText: { fontSize: 12, color: '#facc15', fontWeight: '500', flex: 1 },
   timerSection: { alignItems: 'center', paddingVertical: 24, paddingHorizontal: 16 },
   timerLabel: { fontSize: 12, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 12 },
-  timerValue: { fontSize: 56, fontWeight: '700', color: '#F5A623', fontVariant: ['tabular-nums'] },
+  timerValue: { fontSize: 56, fontWeight: '700', color: '#f7941d', fontVariant: ['tabular-nums'] },
   timerValueWarning: { color: '#facc15' },
   timerRange: { fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 8 },
   progressBg: { marginTop: 16, height: 6, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 3, width: '100%', overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: '#F5A623', borderRadius: 3 },
+  progressFill: { height: '100%', backgroundColor: '#f7941d', borderRadius: 3 },
   progressWarning: { backgroundColor: '#facc15' },
   actionsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginBottom: 24 },
   actionBtn: {
@@ -366,13 +360,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     borderRadius: 16,
-    backgroundColor: 'rgba(245,166,35,0.1)',
+    backgroundColor: 'rgba(247,148,29,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.3)',
+    borderColor: 'rgba(247,148,29,0.3)',
   },
   actionBtnOpen: { backgroundColor: 'rgba(34,197,94,0.1)', borderColor: 'rgba(34,197,94,0.3)' },
   actionBtnDisabled: { opacity: 0.6 },
-  actionLabel: { fontSize: 12, fontWeight: '500', color: '#F5A623', marginTop: 8 },
+  actionLabel: { fontSize: 12, fontWeight: '500', color: '#f7941d', marginTop: 8 },
   actionLabelOpen: { color: '#4ade80' },
   actionBtnSecondary: {
     flex: 1,
@@ -384,7 +378,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.05)',
     backgroundColor: 'rgba(255,255,255,0.03)',
   },
-  actionLabelSecondary: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.4)', marginTop: 8 },
+  actionLabelSecondary: { fontSize: 12, fontWeight: '500', color: '#fff', marginTop: 8 },
   actionBtnDanger: {
     flex: 1,
     alignItems: 'center',
@@ -414,16 +408,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.05)',
     backgroundColor: '#141414',
   },
-  controlCardActive: { borderColor: 'rgba(245,166,35,0.3)', backgroundColor: 'rgba(245,166,35,0.08)' },
+  controlCardActive: { borderColor: 'rgba(247,148,29,0.3)', backgroundColor: 'rgba(247,148,29,0.08)' },
   controlIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  controlIconActive: { backgroundColor: 'rgba(245,166,35,0.2)' },
-  controlLabel: { fontSize: 14, fontWeight: '500', color: 'rgba(255,255,255,0.4)' },
+  controlIconActive: { backgroundColor: 'rgba(247,148,29,0.2)' },
+  controlLabel: { fontSize: 14, fontWeight: '500', color: '#fff' },
   controlLabelActive: { color: '#fff' },
   controlStatus: { fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 4 },
-  controlStatusActive: { color: '#F5A623' },
+  controlStatusActive: { color: '#f7941d' },
   tempControl: { position: 'absolute', top: 12, right: 12, alignItems: 'center' },
   tempBtn: { width: 24, height: 24, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
-  tempValue: { fontSize: 14, fontWeight: '700', color: '#F5A623' },
+  tempValue: { fontSize: 14, fontWeight: '700', color: '#f7941d' },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -449,20 +443,19 @@ const styles = StyleSheet.create({
     maxWidth: 340,
     width: '100%',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.2)',
+    borderColor: 'rgba(247,148,29,0.2)',
   },
   qrModalTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 8 },
   qrModalHint: { fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 },
-  qrImage: { width: 280, height: 280, backgroundColor: '#fff', borderRadius: 12 },
-  qrPlaceholder: { justifyContent: 'center', alignItems: 'center' },
-  qrCodeText: { fontSize: 28, fontWeight: '700', color: '#F5A623', letterSpacing: 4, marginTop: 16 },
-  qrExpires: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 8 },
+  qrImageWrap: { width: 280, height: 280, backgroundColor: '#fff', borderRadius: 12, padding: 12, alignItems: 'center', justifyContent: 'center' },
+  qrCodeText: { fontSize: 28, fontWeight: '700', color: '#f7941d', letterSpacing: 4, marginTop: 16 },
+  qrExpires: { fontSize: 12, color: '#fff', marginTop: 8 },
   qrModalClose: {
     marginTop: 20,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: 'rgba(245,166,35,0.2)',
+    backgroundColor: 'rgba(247,148,29,0.2)',
     borderRadius: 12,
   },
-  qrModalCloseText: { fontSize: 14, fontWeight: '600', color: '#F5A623' },
+  qrModalCloseText: { fontSize: 14, fontWeight: '600', color: '#f7941d' },
 });

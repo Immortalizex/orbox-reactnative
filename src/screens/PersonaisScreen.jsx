@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 const LEVEL_LABELS = {
   trainee: { label: 'Trainee', color: 'rgba(255,255,255,0.5)', bg: 'rgba(255,255,255,0.05)' },
   certified: { label: 'Certificado', color: '#60a5fa', bg: 'rgba(59,130,246,0.2)' },
-  premium: { label: 'Premium', color: '#F5A623', bg: 'rgba(245,166,35,0.2)' },
+  premium: { label: 'Premium', color: '#f7941d', bg: 'rgba(247,148,29,0.2)' },
 };
 
 const SPECIALTY_COLORS = [
@@ -56,7 +56,7 @@ export default function PersonaisScreen() {
           style={styles.registerBtn}
           onPress={() => rootNav.navigate('PersonalRegister')}
         >
-          <Ionicons name="person-add" size={16} color="#F5A623" />
+          <Ionicons name="person-add" size={16} color="#f7941d" />
           <Text style={styles.registerBtnText}>Quero ser Personal</Text>
         </TouchableOpacity>
       </View>
@@ -93,7 +93,7 @@ export default function PersonaisScreen() {
 
       {isLoading ? (
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color="#F5A623" />
+          <ActivityIndicator size="large" color="#f7941d" />
         </View>
       ) : filtered.length === 0 ? (
         <View style={styles.empty}>
@@ -126,7 +126,7 @@ export default function PersonaisScreen() {
                       </View>
                     </View>
                     <View style={styles.ratingRow}>
-                      <Ionicons name="star" size={12} color="#F5A623" />
+                      <Ionicons name="star" size={12} color="#f7941d" />
                       <Text style={styles.ratingText}>
                         {p.average_rating?.toFixed(1) || '—'} ({p.total_ratings || 0})
                       </Text>
@@ -157,11 +157,11 @@ export default function PersonaisScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   header: { marginBottom: 20 },
   title: { fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 12 },
+  subtitle: { fontSize: 14, color: '#fff', marginBottom: 12 },
   registerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -170,11 +170,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: 'rgba(245,166,35,0.1)',
+    backgroundColor: 'rgba(247,148,29,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(245,166,35,0.2)',
+    borderColor: 'rgba(247,148,29,0.2)',
   },
-  registerBtnText: { color: '#F5A623', fontSize: 14, fontWeight: '500' },
+  registerBtnText: { color: '#f7941d', fontSize: 14, fontWeight: '500' },
   searchWrap: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   searchIcon: { position: 'absolute', left: 12, zIndex: 1 },
   searchInput: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
-  filterBtnActive: { backgroundColor: '#F5A623', borderColor: 'transparent' },
+  filterBtnActive: { backgroundColor: '#f89b14', borderColor: 'transparent', borderRadius: 14 },
   filterText: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)' },
   filterTextActive: { color: '#000' },
   loading: { paddingVertical: 48, alignItems: 'center' },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   levelText: { fontSize: 10, fontWeight: '700' },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   ratingText: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
-  price: { fontSize: 12, fontWeight: '700', color: '#F5A623', marginTop: 4 },
+  price: { fontSize: 12, fontWeight: '700', color: '#f7941d', marginTop: 4 },
   specialties: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
   specialtyTag: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   specialtyText: { fontSize: 10, color: '#fff' },

@@ -20,6 +20,7 @@ import { api } from '../api/client';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import QuickStatCard from '../components/QuickStatCard';
+import GradientButton from '../components/GradientButton';
 import StatusBadge from '../components/StatusBadge';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -153,17 +154,18 @@ export default function AdminDashboardScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="grid" size={20} color="#F5A623" />
+          <Ionicons name="grid" size={20} color="#f7941d" />
           <Text style={styles.title}>Dashboard Admin</Text>
         </View>
-        <TouchableOpacity
+        <GradientButton
           style={styles.addBoxBtn}
+          contentStyle={styles.addBoxBtnContent}
+          row
           onPress={() => setShowAddBox(true)}
-          activeOpacity={0.8}
         >
-          <Ionicons name="add" size={18} color="#000" />
+          <Ionicons name="add" size={18} color="#1a1a1a" />
           <Text style={styles.addBoxBtnText}>Novo box</Text>
-        </TouchableOpacity>
+        </GradientButton>
       </View>
 
       <Modal visible={showAddBox} transparent animationType="fade">
@@ -212,7 +214,7 @@ export default function AdminDashboardScreen() {
                     disabled={uploadingImage}
                   >
                     {uploadingImage ? (
-                      <ActivityIndicator size="small" color="#F5A623" />
+                      <ActivityIndicator size="small" color="#f7941d" />
                     ) : (
                       <>
                         <Ionicons name="image-outline" size={28} color="rgba(255,255,255,0.5)" />
@@ -233,7 +235,7 @@ export default function AdminDashboardScreen() {
                   onFocus={() => setInputFocused('name')}
                   onBlur={() => setInputFocused(null)}
                   autoCapitalize="words"
-                  selectionColor="rgb(245, 166, 35)"
+                  selectionColor="rgb(247, 148, 29)"
                   underlineColorAndroid="transparent"
                 />
                 <Text style={styles.fieldLabel}>Endereço *</Text>
@@ -246,7 +248,7 @@ export default function AdminDashboardScreen() {
                   onFocus={() => setInputFocused('address')}
                   onBlur={() => setInputFocused(null)}
                   autoCapitalize="sentences"
-                  selectionColor="rgb(245, 166, 35)"
+                  selectionColor="rgb(247, 148, 29)"
                   underlineColorAndroid="transparent"
                 />
                 <Text style={styles.fieldLabel}>Preço por hora (R$) *</Text>
@@ -259,7 +261,7 @@ export default function AdminDashboardScreen() {
                   onFocus={() => setInputFocused('price')}
                   onBlur={() => setInputFocused(null)}
                   keyboardType="decimal-pad"
-                  selectionColor="rgb(245, 166, 35)"
+                  selectionColor="rgb(247, 148, 29)"
                   underlineColorAndroid="transparent"
                 />
                 <Text style={styles.fieldLabel}>Cidade (opcional)</Text>
@@ -272,7 +274,7 @@ export default function AdminDashboardScreen() {
                   onFocus={() => setInputFocused('city')}
                   onBlur={() => setInputFocused(null)}
                   autoCapitalize="words"
-                  selectionColor="rgb(245, 166, 35)"
+                  selectionColor="rgb(247, 148, 29)"
                   underlineColorAndroid="transparent"
                 />
                 <Text style={styles.fieldLabel}>Localização no mapa (opcional)</Text>
@@ -290,7 +292,7 @@ export default function AdminDashboardScreen() {
                     onFocus={() => setInputFocused('lat')}
                     onBlur={() => setInputFocused(null)}
                     keyboardType="decimal-pad"
-                    selectionColor="rgb(245, 166, 35)"
+                    selectionColor="rgb(247, 148, 29)"
                     underlineColorAndroid="transparent"
                   />
                   <TextInput
@@ -306,7 +308,7 @@ export default function AdminDashboardScreen() {
                     onFocus={() => setInputFocused('lng')}
                     onBlur={() => setInputFocused(null)}
                     keyboardType="decimal-pad"
-                    selectionColor="rgb(245, 166, 35)"
+                    selectionColor="rgb(247, 148, 29)"
                     underlineColorAndroid="transparent"
                   />
                 </View>
@@ -338,21 +340,22 @@ export default function AdminDashboardScreen() {
                   >
                     <Text style={styles.cancelBtnText}>Cancelar</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
+                  <GradientButton
                     style={[styles.submitBtn, createBox.isPending && styles.submitBtnDisabled]}
+                    contentStyle={styles.submitBtnContent}
+                    row
                     onPress={() => handleAddBox()}
                     disabled={createBox.isPending}
-                    activeOpacity={0.8}
                   >
                     {createBox.isPending ? (
-                      <ActivityIndicator size="small" color="#000" />
+                      <ActivityIndicator size="small" color="#1a1a1a" />
                     ) : (
                       <>
-                        <Ionicons name="checkmark" size={18} color="#000" />
+                        <Ionicons name="checkmark" size={18} color="#1a1a1a" />
                         <Text style={styles.submitBtnText}>Criar box</Text>
                       </>
                     )}
-                  </TouchableOpacity>
+                  </GradientButton>
                 </View>
               </ScrollView>
             </View>
@@ -361,10 +364,14 @@ export default function AdminDashboardScreen() {
       </Modal>
 
       <View style={styles.statsGrid}>
-        <QuickStatCard iconName="cash" label="Receita Total" value={`R$ ${totalRevenue.toFixed(0)}`} accent />
-        <QuickStatCard iconName="calendar" label="Reservas Ativas" value={activeBookings} />
-        <QuickStatCard iconName="cube" label="Boxes Online" value={`${onlineBoxes}/${boxes.length}`} />
-        <QuickStatCard iconName="people" label="Usuários" value={users.length} />
+        <View style={styles.statsRow}>
+          <QuickStatCard iconName="cash" label="Receita Total" value={`R$ ${totalRevenue.toFixed(0)}`} accent />
+          <QuickStatCard iconName="calendar" label="Reservas Ativas" value={activeBookings} />
+        </View>
+        <View style={[styles.statsRow, styles.statsRowLast]}>
+          <QuickStatCard iconName="cube" label="Boxes Online" value={`${onlineBoxes}/${boxes.length}`} />
+          <QuickStatCard iconName="people" label="Usuários" value={users.length} />
+        </View>
         <TouchableOpacity
           style={styles.ticketCard}
           onPress={() => navigation.navigate('AdminSupportTickets')}
@@ -372,7 +379,7 @@ export default function AdminDashboardScreen() {
         >
           <View style={styles.ticketCardInner}>
             <View style={[styles.iconWrap, styles.iconWrapTicket]}>
-              <Ionicons name="ticket" size={20} color="#F5A623" />
+              <Ionicons name="ticket" size={20} color="#f7941d" />
             </View>
             <View>
               <Text style={styles.ticketCardLabel}>Tickets de Suporte</Text>
@@ -414,21 +421,14 @@ export default function AdminDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 32 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff' },
-  addBoxBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#F5A623',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  addBoxBtnText: { color: '#000', fontWeight: '700', fontSize: 14 },
+  addBoxBtn: { alignSelf: 'flex-start' },
+  addBoxBtnContent: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, minHeight: 40 },
+  addBoxBtnText: { color: '#1a1a1a', fontWeight: '700', fontSize: 14 },
   modalOverlay: { flex: 1, justifyContent: 'center', padding: 20 },
   modalBackdrop: { backgroundColor: 'rgba(0,0,0,0.6)' },
   modalCenter: { justifyContent: 'center' },
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingBottom: 12 },
   modalTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
   imagePreviewWrap: { position: 'relative', marginBottom: 16, borderRadius: 12, overflow: 'hidden' },
-  imagePreview: { width: '100%', height: 160, backgroundColor: '#0a0a0a' },
+  imagePreview: { width: '100%', height: 160, backgroundColor: 'rgba(10,10,10,0.95)' },
   removeImageBtn: { position: 'absolute', top: 8, right: 8 },
   uploadImageBtn: {
     flexDirection: 'row',
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 20,
     marginBottom: 16,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.1)',
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   modalScrollContent: { paddingHorizontal: 20, paddingBottom: 24 },
   fieldLabel: { fontSize: 14, color: 'rgba(255,255,255,0.9)', marginBottom: 6 },
   input: {
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: 12,
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 16,
   },
-  inputFocused: { borderColor: 'rgb(245, 166, 35)' },
+  inputFocused: { borderColor: 'rgb(247, 148, 29)' },
   coordsRow: { flexDirection: 'row', gap: 10, marginBottom: 4 },
   inputHalf: { flex: 1, marginBottom: 0, minWidth: 0 },
   inputHint: { fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 16 },
@@ -482,31 +482,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
-  statusChipActive: { backgroundColor: 'rgba(245,166,35,0.2)', borderColor: '#F5A623' },
+  statusChipActive: { backgroundColor: 'rgba(247,148,29,0.2)', borderColor: '#f7941d' },
   statusChipText: { fontSize: 13, color: 'rgba(255,255,255,0.7)' },
-  statusChipTextActive: { color: '#F5A623', fontWeight: '600' },
+  statusChipTextActive: { color: '#f7941d', fontWeight: '600' },
   formError: { color: '#f87171', fontSize: 13, marginBottom: 12 },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
   cancelBtn: { paddingVertical: 10, paddingHorizontal: 16 },
   cancelBtnText: { color: 'rgba(255,255,255,0.5)' },
-  submitBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#F5A623',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 10,
-  },
+  submitBtn: {},
+  submitBtnContent: { paddingVertical: 10, paddingHorizontal: 18, borderRadius: 14 },
   submitBtnDisabled: { opacity: 0.6 },
-  submitBtnText: { color: '#000', fontWeight: '700' },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 },
+  submitBtnText: { color: '#1a1a1a', fontWeight: '700' },
+  statsGrid: { marginBottom: 24 },
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  statsRowLast: { marginBottom: 0 },
   ticketCard: {
     minWidth: '100%',
+    marginTop: 12,
     backgroundColor: '#141414',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
@@ -527,14 +523,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconWrapTicket: { backgroundColor: 'rgba(245,166,35,0.15)' },
-  ticketCardLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 },
-  ticketCardValue: { fontSize: 16, fontWeight: '700', color: '#F5A623' },
+  iconWrapTicket: { backgroundColor: 'rgba(247,148,29,0.15)' },
+  ticketCardLabel: { fontSize: 11, color: '#fff', textTransform: 'uppercase', letterSpacing: 1 },
+  ticketCardValue: { fontSize: 16, fontWeight: '700', color: '#f7941d' },
   sectionTitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
   table: { backgroundColor: '#141414', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', overflow: 'hidden' },
   row: { flexDirection: 'row', flexWrap: 'wrap', padding: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)', gap: 12, alignItems: 'center' },
   cell: { minWidth: 80 },
   cellLabel: { fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 2 },
   cellValue: { fontSize: 13, color: 'rgba(255,255,255,0.8)' },
-  cellValueAccent: { fontSize: 13, fontWeight: '600', color: '#F5A623' },
+  cellValueAccent: { fontSize: 13, fontWeight: '600', color: '#f7941d' },
 });

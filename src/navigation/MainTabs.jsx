@@ -35,8 +35,8 @@ export default function MainTabs() {
               color={color}
             />
           ),
-          tabBarActiveTintColor: '#F5A623',
-          tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
+          tabBarActiveTintColor: '#f7941d',
+          tabBarInactiveTintColor: '#fff',
           tabBarStyle: styles.tabBar,
           tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
         })}
@@ -53,7 +53,7 @@ export default function MainTabs() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   tabBar: {
     backgroundColor: 'rgba(10,10,10,0.95)',
     borderTopColor: 'rgba(255,255,255,0.05)',

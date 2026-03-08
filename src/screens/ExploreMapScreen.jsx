@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,14 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Animated,
+  Platform,
+  UIManager,
 } from 'react-native';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api/client';
 import BoxCard from '../components/BoxCard';
@@ -18,6 +25,16 @@ export default function ExploreMapScreen() {
   const rootNav = useRootNavigation();
   const [view, setView] = useState('list');
   const [searchQuery, setSearchQuery] = useState('');
+  const slideAnim = useRef(new Animated.Value(view === 'list' ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(slideAnim, {
+      toValue: view === 'list' ? 1 : 0,
+      useNativeDriver: true,
+      tension: 68,
+      friction: 12,
+    }).start();
+  }, [view, slideAnim]);
 
   const { data: boxes = [], isLoading } = useQuery({
     queryKey: ['allBoxes'],
@@ -43,21 +60,40 @@ export default function ExploreMapScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Encontrar Box</Text>
-        <View style={styles.toggle}>
-          <TouchableOpacity
-            style={[styles.toggleBtn, view === 'map' && styles.toggleBtnActive]}
-            onPress={() => setView('map')}
-          >
-            <Ionicons name="map" size={14} color={view === 'map' ? '#000' : 'rgba(255,255,255,0.5)'} />
-            <Text style={[styles.toggleText, view === 'map' && styles.toggleTextActive]}>Mapa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleBtn, view === 'list' && styles.toggleBtnActive]}
-            onPress={() => setView('list')}
-          >
-            <Ionicons name="list" size={14} color={view === 'list' ? '#000' : 'rgba(255,255,255,0.5)'} />
-            <Text style={[styles.toggleText, view === 'list' && styles.toggleTextActive]}>Lista</Text>
-          </TouchableOpacity>
+        <View style={styles.switchRow}>
+          <View style={styles.switchTrack}>
+            <Animated.View
+              style={[
+                styles.switchThumb,
+                {
+                  transform: [
+                    {
+                      translateX: slideAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 82],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+            <TouchableOpacity
+              style={styles.switchSegment}
+              onPress={() => setView('map')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="map-outline" size={14} color={view === 'map' ? '#1a1a1a' : 'rgba(255,255,255,0.45)'} />
+              <Text style={[styles.switchLabel, view === 'map' && styles.switchLabelActive]}>Mapa</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.switchSegment}
+              onPress={() => setView('list')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="list-outline" size={14} color={view === 'list' ? '#1a1a1a' : 'rgba(255,255,255,0.45)'} />
+              <Text style={[styles.switchLabel, view === 'list' && styles.switchLabelActive]}>Lista</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -95,14 +131,41 @@ export default function ExploreMapScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
   title: { fontSize: 20, fontWeight: '700', color: '#fff' },
-  toggle: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 4 },
-  toggleBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  toggleBtnActive: { backgroundColor: '#F5A623' },
-  toggleText: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.5)' },
-  toggleTextActive: { color: '#000' },
+  switchRow: { marginLeft: 6 },
+  switchTrack: {
+    width: 168,
+    height: 32,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 2,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  switchThumb: {
+    position: 'absolute',
+    left: 2,
+    top: 2,
+    width: 82,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#f7941d',
+  },
+  switchSegment: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    height: '100%',
+    zIndex: 1,
+  },
+  switchLabel: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.45)' },
+  switchLabelActive: { color: '#1a1a1a' },
   searchWrap: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 12 },
   searchIcon: { position: 'absolute', left: 28, zIndex: 1 },
   searchInput: {

@@ -16,7 +16,7 @@ export default function PageNotFoundScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'rgba(10,10,10,0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,

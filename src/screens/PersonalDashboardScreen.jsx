@@ -6,11 +6,12 @@ import { api } from '../api/client';
 import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Ionicons } from '@expo/vector-icons';
+import GradientButton from '../components/GradientButton';
 
 const LEVEL_LABELS = {
   trainee: { label: 'Trainee', color: 'rgba(255,255,255,0.5)', bg: 'rgba(255,255,255,0.05)' },
   certified: { label: 'Certificado', color: '#60a5fa', bg: 'rgba(59,130,246,0.2)' },
-  premium: { label: 'Premium', color: '#F5A623', bg: 'rgba(245,166,35,0.2)' },
+  premium: { label: 'Premium', color: '#f7941d', bg: 'rgba(247,148,29,0.2)' },
 };
 
 export default function PersonalDashboardScreen() {
@@ -56,9 +57,9 @@ export default function PersonalDashboardScreen() {
       <View style={styles.centerScreen}>
         <Text style={styles.centerTitle}>Você ainda não é um personal cadastrado</Text>
         <Text style={styles.centerSubtitle}>Cadastre-se para acessar seu dashboard</Text>
-        <TouchableOpacity style={styles.primaryBtn} onPress={() => rootNav.navigate('PersonalRegister')}>
-          <Text style={styles.primaryBtnText}>Cadastrar como Personal</Text>
-        </TouchableOpacity>
+        <GradientButton style={styles.primaryBtn} onPress={() => rootNav.navigate('PersonalRegister')}>
+          Cadastrar como Personal
+        </GradientButton>
       </View>
     );
   }
@@ -109,7 +110,7 @@ export default function PersonalDashboardScreen() {
           { label: 'Ganhos', value: `R$${(profile.total_earnings || 0).toFixed(0)}`, icon: 'cash' },
         ].map((s) => (
           <View key={s.label} style={[styles.statCard, s.accent && styles.statCardAccent]}>
-            <Ionicons name={s.icon} size={16} color={s.accent ? '#F5A623' : 'rgba(255,255,255,0.3)'} />
+            <Ionicons name={s.icon} size={16} color={s.accent ? '#f7941d' : 'rgba(255,255,255,0.3)'} />
             <Text style={[styles.statValue, s.accent && styles.statValueAccent]}>{s.value}</Text>
             <Text style={styles.statLabel}>{s.label}</Text>
           </View>
@@ -151,15 +152,20 @@ export default function PersonalDashboardScreen() {
                 </Text>
                 <Text style={styles.plantaoSlots}>{p.slots} vaga(s)</Text>
               </View>
-              <TouchableOpacity
-                style={[styles.applyBtn, applied && styles.applyBtnDone]}
-                onPress={() => !applied && applyPlantao.mutate(p)}
-                disabled={applied}
-              >
-                <Text style={styles.applyBtnText}>
-                  {applied ? 'Candidatado' : 'Candidatar'}
-                </Text>
-              </TouchableOpacity>
+              {applied ? (
+                <TouchableOpacity style={[styles.applyBtn, styles.applyBtnDone]} disabled>
+                  <Text style={styles.applyBtnTextDone}>Candidatado</Text>
+                </TouchableOpacity>
+              ) : (
+                <GradientButton
+                  style={styles.applyBtn}
+                  contentStyle={styles.applyBtnContent}
+                  shine={false}
+                  onPress={() => applyPlantao.mutate(p)}
+                >
+                  Candidatar
+                </GradientButton>
+              )}
             </View>
           );
         })
@@ -175,7 +181,7 @@ export default function PersonalDashboardScreen() {
               <Text style={styles.reviewAuthor}>{r.user_name || 'Usuário'}</Text>
               <View style={styles.reviewStars}>
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <Ionicons key={n} name={n <= r.rating ? 'star' : 'star-outline'} size={12} color="#F5A623" />
+                  <Ionicons key={n} name={n <= r.rating ? 'star' : 'star-outline'} size={12} color="#f7941d" />
                 ))}
               </View>
             </View>
@@ -188,14 +194,13 @@ export default function PersonalDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   content: { padding: 16, paddingBottom: 40 },
   centerScreen: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   iconWrap: { width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   centerTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 8, textAlign: 'center' },
   centerSubtitle: { color: 'rgba(255,255,255,0.5)', fontSize: 14, textAlign: 'center', marginBottom: 24 },
-  primaryBtn: { backgroundColor: '#F5A623', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 12 },
-  primaryBtnText: { color: '#000', fontWeight: '700' },
+  primaryBtn: { paddingHorizontal: 24 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 24 },
   avatar: { width: 56, height: 56, borderRadius: 16 },
   avatarPlaceholder: { width: 56, height: 56, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' },
@@ -205,7 +210,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 20, fontWeight: '700', color: '#fff' },
   levelBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   levelText: { fontSize: 12, fontWeight: '700' },
-  subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 4 },
+  subtitle: { fontSize: 14, color: '#fff', marginTop: 4 },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 20 },
   statCard: {
     width: '47%',
@@ -215,10 +220,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.05)',
     backgroundColor: '#141414',
   },
-  statCardAccent: { backgroundColor: 'rgba(245,166,35,0.08)', borderColor: 'rgba(245,166,35,0.2)' },
+  statCardAccent: { backgroundColor: 'rgba(247,148,29,0.08)', borderColor: 'rgba(247,148,29,0.2)' },
   statValue: { fontSize: 22, fontWeight: '700', color: '#fff', marginTop: 8 },
-  statValueAccent: { color: '#F5A623' },
-  statLabel: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 },
+  statValueAccent: { color: '#f7941d' },
+  statLabel: { fontSize: 12, color: '#fff', marginTop: 4 },
   progressCard: {
     backgroundColor: '#141414',
     borderWidth: 1,
@@ -229,9 +234,9 @@ const styles = StyleSheet.create({
   },
   progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   progressTitle: { fontSize: 14, fontWeight: '500', color: '#fff' },
-  progressCount: { fontSize: 12, color: 'rgba(255,255,255,0.4)' },
+  progressCount: { fontSize: 12, color: '#fff' },
   progressBar: { height: 8, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 4, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: '#F5A623', borderRadius: 4 },
+  progressFill: { height: '100%', backgroundColor: '#f7941d', borderRadius: 4 },
   progressNext: { fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8 },
   sectionTitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
   empty: { color: 'rgba(255,255,255,0.3)', fontSize: 14, textAlign: 'center', paddingVertical: 24 },
@@ -247,11 +252,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   plantaoBox: { fontSize: 14, fontWeight: '600', color: '#fff' },
-  plantaoMeta: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 },
+  plantaoMeta: { fontSize: 12, color: '#fff', marginTop: 4 },
   plantaoSlots: { fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 2 },
-  applyBtn: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, backgroundColor: '#F5A623' },
-  applyBtnDone: { backgroundColor: 'rgba(255,255,255,0.05)' },
-  applyBtnText: { color: '#000', fontWeight: '700', fontSize: 12 },
+  applyBtn: {},
+  applyBtnContent: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14, minHeight: 36 },
+  applyBtnDone: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', alignSelf: 'flex-start' },
+  applyBtnText: { color: '#1a1a1a', fontWeight: '700', fontSize: 12 },
+  applyBtnTextDone: { color: 'rgba(255,255,255,0.5)', fontWeight: '700', fontSize: 12 },
   reviewCard: {
     backgroundColor: '#141414',
     borderWidth: 1,
