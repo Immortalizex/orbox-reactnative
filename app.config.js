@@ -36,6 +36,9 @@ module.exports = {
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL || '/api',
       appId: process.env.EXPO_PUBLIC_APP_ID || 'default',
+      eas: {
+        projectId: "f20c6fbc-f40f-4a3b-b46c-1d97d77c4189"
+      }
     },
     web: {
       bundler: 'metro',
