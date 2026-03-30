@@ -16,9 +16,8 @@ export const colors = {
 };
 
 export const fonts = {
-  default: 'Syne_400Regular',
-  medium: 'Syne_500Medium',
-  semiBold: 'Syne_600SemiBold',
-  bold: 'Syne_700Bold',
-  extraBold: 'Syne_800ExtraBold',
+  default: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semiBold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { parse, differenceInSeconds } from 'date-fns';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ActiveSessionCard({ booking, onOpenSession }) {
   const [now, setNow] = useState(new Date());
@@ -20,7 +21,8 @@ export default function ActiveSessionCard({ booking, onOpenSession }) {
   const s = remaining % 60;
 
   return (
-    <View style={styles.card}>
+    <LinearGradient colors={['rgba(247,148,29,0.18)', 'rgba(255,255,255,0.04)']} style={styles.cardOuter}>
+      <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.liveRow}>
           <View style={styles.dot} />
@@ -47,25 +49,21 @@ export default function ActiveSessionCard({ booking, onOpenSession }) {
         <Ionicons name="open" size={16} color="#000" />
         <Text style={styles.ctaText}>Abrir Sessão</Text>
       </TouchableOpacity>
-    </View>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: 'rgba(247,148,29,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(247,148,29,0.3)',
-    borderRadius: 16,
-    padding: 20,
-  },
+  cardOuter: { borderRadius: 20, padding: 1 },
+  card: { borderRadius: 20, padding: 18, backgroundColor: 'rgba(20,20,20,0.92)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   liveRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#f7941d' },
   liveText: { fontSize: 11, fontWeight: '700', color: '#f7941d', letterSpacing: 1 },
-  link: { fontSize: 12, color: '#f7941d', fontWeight: '500' },
-  boxName: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  time: { fontSize: 12, color: '#fff', marginBottom: 12 },
+  link: { fontSize: 12, color: '#f7941d', fontWeight: '700' },
+  boxName: { fontSize: 16, fontWeight: '800', color: '#fff', marginBottom: 4, letterSpacing: -0.2 },
+  time: { fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 12 },
   remainingRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   remainingLabel: { fontSize: 12, color: 'rgba(255,255,255,0.3)' },
   remainingValue: { fontSize: 24, fontWeight: '700', color: '#f7941d', fontVariant: ['tabular-nums'] },

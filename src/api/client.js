@@ -383,7 +383,7 @@ export const api = {
     },
   },
   payments: {
-    async create({ reservationId, amount, method }) {
+    async create({ reservationId, amount, method, cardToken, billingAddress }) {
       if (!useBackend()) throw new Error('Pagamento disponível apenas com o backend.');
       return request('/payments', {
         method: 'POST',
@@ -391,6 +391,8 @@ export const api = {
           reservationId,
           amount: typeof amount === 'string' ? parseFloat(amount) : amount,
           method: method === 'credit_card' ? 'card' : method || 'pix',
+          ...(cardToken ? { cardToken } : {}),
+          ...(billingAddress ? { billingAddress } : {}),
         }),
       });
     },

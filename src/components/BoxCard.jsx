@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const statusConfig = {
   online: { label: 'Disponível', bg: 'rgba(34,197,94,0.2)', text: '#4ade80' },
@@ -29,6 +30,13 @@ export default function BoxCard({ box, onPress }) {
             <Ionicons name="barbell" size={48} color="rgba(255,255,255,0.1)" />
           </View>
         )}
+        <LinearGradient
+          colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0.75)']}
+          style={styles.imageShade}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          pointerEvents="none"
+        />
         <View style={styles.badgeWrap}>
           <BoxStatusBadge status={box.status} />
         </View>
@@ -51,21 +59,22 @@ export default function BoxCard({ box, onPress }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#141414',
-    borderRadius: 16,
+    backgroundColor: 'rgba(20,20,20,0.92)',
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.08)',
     overflow: 'hidden',
   },
   imageWrap: { height: 160, backgroundColor: '#1a1a1a' },
   image: { width: '100%', height: '100%' },
   imagePlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  imageShade: { position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 },
   badgeWrap: { position: 'absolute', top: 12, left: 12 },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   badgeText: { fontSize: 11, fontWeight: '600' },
   body: { padding: 16 },
-  name: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  address: { fontSize: 12, color: '#fff', marginBottom: 12 },
+  name: { fontSize: 14, fontWeight: '800', color: '#fff', marginBottom: 4, letterSpacing: -0.1 },
+  address: { fontSize: 12, color: 'rgba(255,255,255,0.78)', marginBottom: 12 },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   hours: { fontSize: 12, color: 'rgba(255,255,255,0.3)' },
   price: { fontSize: 14, fontWeight: '700', color: '#f7941d' },

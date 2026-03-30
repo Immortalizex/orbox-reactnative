@@ -26,7 +26,6 @@ export default function BookBoxScreen() {
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [duration, setDuration] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState('credit_card');
   const [booking, setBooking] = useState(false);
   const [user, setUser] = useState(null);
 
@@ -83,30 +82,35 @@ export default function BookBoxScreen() {
     if (!selectedSlot || !user) return;
     setBooking(true);
     const accessCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    await api.entities.Booking.create({
-      box_id: boxId,
-      box_name: box.name,
-      user_email: user.email,
-      user_name: user.full_name,
-      date: selectedDate,
-      start_time: selectedSlot,
-      end_time: endTime,
-      total_price: totalPrice,
-      payment_method: paymentMethod,
-      access_code: accessCode,
-      status: 'confirmed',
-    });
-    const allBookings = await api.entities.Booking.filter({
-      user_email: user.email,
-      date: selectedDate,
-    });
-    const newBooking = allBookings.find(
-      (b) => b.start_time === selectedSlot && b.box_id === boxId
-    );
-    setBooking(false);
-    queryClient.invalidateQueries({ queryKey: ['myBookings'] });
-    queryClient.invalidateQueries({ queryKey: ['boxBookings', boxId, selectedDate] });
-    rootNav.navigate('BookingConfirmed', { bookingId: newBooking?.id });
+    try {
+      await api.entities.Booking.create({
+        box_id: boxId,
+        box_name: box.name,
+        user_email: user.email,
+        user_name: user.full_name,
+        date: selectedDate,
+        start_time: selectedSlot,
+        end_time: endTime,
+        total_price: totalPrice,
+        payment_method: 'credit_card',
+        access_code: accessCode,
+        status: 'pending_payment',
+      });
+
+      const allBookings = await api.entities.Booking.filter({
+        user_email: user.email,
+        date: selectedDate,
+      });
+      const newBooking =
+        allBookings.find((b) => b.start_time === selectedSlot && b.box_id === boxId) || null;
+
+      queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+      queryClient.invalidateQueries({ queryKey: ['boxBookings', boxId, selectedDate] });
+
+      rootNav.navigate('MyBookings', { bookingId: newBooking?.id });
+    } finally {
+      setBooking(false);
+    }
   };
 
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -117,12 +121,6 @@ export default function BookBoxScreen() {
       day: format(d, 'dd'),
     };
   });
-
-  const paymentOptions = [
-    { key: 'credit_card', label: 'Cartão de Crédito', icon: 'card' },
-    { key: 'pix', label: 'PIX', icon: 'qr-code' },
-    { key: 'credits', label: 'Créditos OrBox', icon: 'flash' },
-  ];
 
   if (!box) {
     return (
@@ -224,35 +222,6 @@ export default function BookBoxScreen() {
             </TouchableOpacity>
           ))}
         </View>
-
-        <Text style={styles.sectionTitle}>Pagamento</Text>
-        {paymentOptions.map((m) => (
-          <TouchableOpacity
-            key={m.key}
-            style={[
-              styles.paymentRow,
-              paymentMethod === m.key && styles.paymentRowActive,
-            ]}
-            onPress={() => setPaymentMethod(m.key)}
-          >
-            <Ionicons
-              name={m.icon}
-              size={20}
-              color={paymentMethod === m.key ? '#f7941d' : '#fff'}
-            />
-            <Text
-              style={[
-                styles.paymentLabel,
-                paymentMethod === m.key && styles.paymentLabelActive,
-              ]}
-            >
-              {m.label}
-            </Text>
-            {paymentMethod === m.key && (
-              <Ionicons name="checkmark" size={16} color="#f7941d" />
-            )}
-          </TouchableOpacity>
-        ))}
 
         <View style={styles.summary}>
           <View style={styles.summaryRow}>
@@ -371,23 +340,6 @@ const styles = StyleSheet.create({
   },
   durationText: { fontSize: 14, fontWeight: '700', color: 'rgba(255,255,255,0.5)' },
   durationTextActive: { color: '#f7941d' },
-  paymentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    backgroundColor: '#141414',
-    marginBottom: 8,
-  },
-  paymentRowActive: {
-    borderColor: 'rgba(247,148,29,0.3)',
-    backgroundColor: 'rgba(247,148,29,0.05)',
-  },
-  paymentLabel: { flex: 1, fontSize: 14, fontWeight: '500', color: 'rgba(255,255,255,0.6)' },
-  paymentLabelActive: { color: '#fff' },
   summary: {
     backgroundColor: '#141414',
     borderWidth: 1,

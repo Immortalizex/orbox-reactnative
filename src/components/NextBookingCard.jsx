@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function NextBookingCard({ booking, onFindBox, onViewDetails }) {
   if (!booking) {
@@ -22,7 +23,8 @@ export default function NextBookingCard({ booking, onFindBox, onViewDetails }) {
   const isToday = format(new Date(), 'yyyy-MM-dd') === booking.date;
 
   return (
-    <View style={styles.card}>
+    <LinearGradient colors={['rgba(247,148,29,0.14)', 'rgba(255,255,255,0.04)']} style={styles.cardOuter}>
+      <View style={styles.card}>
       <View style={styles.row}>
         <View style={[styles.badge, isToday && styles.badgeToday]}>
           <Text style={[styles.badgeText, isToday && styles.badgeTextToday]}>
@@ -45,7 +47,8 @@ export default function NextBookingCard({ booking, onFindBox, onViewDetails }) {
         </Text>
         <Ionicons name="arrow-forward" size={16} color="#000" />
       </TouchableOpacity>
-    </View>
+      </View>
+    </LinearGradient>
   );
 }
 
@@ -69,13 +72,8 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { color: '#fff', fontSize: 14, marginBottom: 8 },
   emptyLink: { color: '#f7941d', fontSize: 14, fontWeight: '600' },
-  card: {
-    backgroundColor: 'rgba(247,148,29,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(247,148,29,0.2)',
-    borderRadius: 16,
-    padding: 20,
-  },
+  cardOuter: { borderRadius: 20, padding: 1 },
+  card: { borderRadius: 20, padding: 18, backgroundColor: 'rgba(20,20,20,0.92)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
   badge: {
     paddingHorizontal: 12,
@@ -88,9 +86,9 @@ const styles = StyleSheet.create({
   badgeTextToday: { color: '#000' },
   badgeActive: { backgroundColor: 'rgba(34,197,94,0.2)' },
   badgeConfirmed: { backgroundColor: 'rgba(59,130,246,0.2)' },
-  badgeTextStatus: { color: '#fff', fontSize: 12, fontWeight: '500' },
-  boxName: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 8 },
-  time: { fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 16 },
+  badgeTextStatus: { color: '#fff', fontSize: 12, fontWeight: '600' },
+  boxName: { fontSize: 18, fontWeight: '800', color: '#fff', marginBottom: 8, letterSpacing: -0.2 },
+  time: { fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 16 },
   cta: {
     flexDirection: 'row',
     alignItems: 'center',

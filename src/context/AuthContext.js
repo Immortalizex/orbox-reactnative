@@ -60,15 +60,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const AUTH_ME_TIMEOUT_MS = 15000;
+
   const checkUserAuth = async () => {
     try {
       setIsLoadingAuth(true);
-      const currentUser = await api.auth.me();
+      const currentUser = await Promise.race([
+        api.auth.me(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(Object.assign(new Error('auth_me_timeout'), { code: 'TIMEOUT' })), AUTH_ME_TIMEOUT_MS)
+        ),
+      ]);
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
       setIsAuthenticated(false);
-      if (error.status === 401 || error.status === 403) {
+      if (error?.code === 'TIMEOUT' || error?.message === 'auth_me_timeout') {
+        // Do not block the app forever on a hanging /auth/me — show login again.
+      } else if (error.status === 401 || error.status === 403) {
         await api.auth.logout();
         setAuthError({ type: 'auth_required', message: 'Authentication required' });
       }

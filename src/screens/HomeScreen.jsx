@@ -10,6 +10,7 @@ import NextBookingCard from '../components/NextBookingCard';
 import ActiveSessionCard from '../components/ActiveSessionCard';
 import BoxCard from '../components/BoxCard';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -59,83 +60,102 @@ export default function HomeScreen() {
     }, 0);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.welcome}>Bem-vindo de volta</Text>
-      <Text style={styles.greeting}>
-        Olá, <Text style={styles.greetingAccent}>{user?.full_name?.split(' ')[0] || '...'}</Text>
-      </Text>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#0B0B10', '#0A0A0A', '#090909']}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      <View style={styles.glowA} pointerEvents="none" />
+      <View style={styles.glowB} pointerEvents="none" />
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statsRow}>
-          <QuickStatCard iconName="calendar" label="Próximas" value={upcoming.length} accent />
-          <QuickStatCard iconName="flash" label="Concluídas" value={completedCount} blue />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.hero}>
+          <Text style={styles.welcome}>Bem-vindo de volta</Text>
+          <Text style={styles.greeting}>
+            Olá, <Text style={styles.greetingAccent}>{user?.full_name?.split(' ')[0] || '...'}</Text>
+          </Text>
+          <Text style={styles.sub}>
+            Pronto para treinar? Confira sua próxima sessão e escolha um box disponível.
+          </Text>
         </View>
-        <View style={[styles.statsRow, styles.statsRowLast]}>
-          <QuickStatCard iconName="time" label="Horas Treino" value={`${totalHours.toFixed(0)}h`} green />
-          <QuickStatCard iconName="location-outline" label="Boxes Ativos" value={boxes.length} white />
-        </View>
-      </View>
 
-      {activeSession && (
-        <View style={styles.section}>
-          <ActiveSessionCard
-            booking={activeSession}
-            onOpenSession={() =>
-              rootNav.navigate('BoxSession', { bookingId: activeSession.id })
-            }
-          />
+        <View style={styles.statsGrid}>
+          <View style={styles.statsRow}>
+            <QuickStatCard iconName="calendar" label="Próximas" value={upcoming.length} accent />
+            <QuickStatCard iconName="flash" label="Concluídas" value={completedCount} blue />
+          </View>
+          <View style={[styles.statsRow, styles.statsRowLast]}>
+            <QuickStatCard iconName="time" label="Horas treino" value={`${totalHours.toFixed(0)}h`} green />
+            <QuickStatCard iconName="location-outline" label="Boxes ativos" value={boxes.length} white />
+          </View>
         </View>
-      )}
 
-      {!activeSession && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Próxima Sessão</Text>
-          <NextBookingCard
-            booking={nextBooking}
-            onFindBox={() => navigation.navigate('ExploreMap')}
-            onViewDetails={() => {
-              if (nextBooking?.status === 'active') {
-                rootNav.navigate('BoxSession', { bookingId: nextBooking.id });
-              } else {
-                navigation.navigate('MyBookings');
+        {activeSession && (
+          <View style={styles.section}>
+            <ActiveSessionCard
+              booking={activeSession}
+              onOpenSession={() =>
+                rootNav.navigate('BoxSession', { bookingId: activeSession.id })
               }
-            }}
-          />
-        </View>
-      )}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Boxes Disponíveis</Text>
-          <TouchableOpacity onPress={() => rootNav.navigate('ExploreMap')}>
-            <Text style={styles.link}>Ver todos →</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.boxGrid}>
-          {boxes.slice(0, 6).map((box) => (
-            <BoxCard
-              key={box.id}
-              box={box}
-              onPress={() => rootNav.navigate('BookBox', { boxId: box.id })}
             />
-          ))}
-        </View>
-        {boxes.length === 0 && (
-          <Text style={styles.emptyText}>Nenhum box disponível no momento</Text>
+          </View>
         )}
-      </View>
-    </ScrollView>
+
+        {!activeSession && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Próxima sessão</Text>
+            <NextBookingCard
+              booking={nextBooking}
+              onFindBox={() => navigation.navigate('ExploreMap')}
+              onViewDetails={() => {
+                if (nextBooking?.status === 'active') {
+                  rootNav.navigate('BoxSession', { bookingId: nextBooking.id });
+                } else {
+                  navigation.navigate('MyBookings');
+                }
+              }}
+            />
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Boxes disponíveis</Text>
+            <TouchableOpacity onPress={() => rootNav.navigate('ExploreMap')} activeOpacity={0.8}>
+              <Text style={styles.link}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.boxGrid}>
+            {boxes.slice(0, 6).map((box) => (
+              <BoxCard
+                key={box.id}
+                box={box}
+                onPress={() => rootNav.navigate('BookBox', { boxId: box.id })}
+              />
+            ))}
+          </View>
+          {boxes.length === 0 && (
+            <Text style={styles.emptyText}>Nenhum box disponível no momento</Text>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
-  content: { padding: 16, paddingBottom: 32 },
-  welcome: { fontSize: 14, color: '#fff', marginBottom: 4 },
-  greeting: { fontSize: 24, fontWeight: '700', color: '#fff', marginBottom: 24 },
+  container: { flex: 1, backgroundColor: '#0B0B10' },
+  content: { padding: 16, paddingBottom: 110 },
+  hero: { paddingTop: 6, paddingBottom: 6 },
+  welcome: { fontSize: 13, color: 'rgba(255,255,255,0.62)', marginBottom: 6 },
+  greeting: { fontSize: 28, fontWeight: '800', color: '#fff', marginBottom: 8, letterSpacing: -0.4 },
   greetingAccent: { color: '#f7941d' },
+  sub: { fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 18, maxWidth: 320 },
   statsGrid: {
     marginBottom: 24,
+    marginTop: 18,
   },
   statsRow: {
     flexDirection: 'row',
@@ -148,14 +168,32 @@ const styles = StyleSheet.create({
   section: { marginBottom: 24 },
   sectionTitle: {
     fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.5)',
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.55)',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.2,
     marginBottom: 12,
   },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  link: { fontSize: 12, color: '#f7941d', fontWeight: '600' },
+  link: { fontSize: 12, color: '#f7941d', fontWeight: '700' },
   boxGrid: { gap: 16 },
   emptyText: { textAlign: 'center', paddingVertical: 32, color: 'rgba(255,255,255,0.3)', fontSize: 14 },
+  glowA: {
+    position: 'absolute',
+    top: -120,
+    left: -140,
+    width: 340,
+    height: 340,
+    borderRadius: 999,
+    backgroundColor: 'rgba(247,148,29,0.14)',
+  },
+  glowB: {
+    position: 'absolute',
+    top: 60,
+    right: -160,
+    width: 360,
+    height: 360,
+    borderRadius: 999,
+    backgroundColor: 'rgba(34,197,94,0.10)',
+  },
 });

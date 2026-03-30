@@ -36,9 +36,10 @@ export default function MainTabs() {
             />
           ),
           tabBarActiveTintColor: '#f7941d',
-          tabBarInactiveTintColor: '#fff',
+          tabBarInactiveTintColor: 'rgba(255,255,255,0.65)',
           tabBarStyle: styles.tabBar,
           tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
+          tabBarHideOnKeyboard: true,
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'Home' }} />
@@ -55,8 +56,22 @@ export default function MainTabs() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'rgba(10,10,10,0.95)' },
   tabBar: {
-    backgroundColor: 'rgba(10,10,10,0.95)',
-    borderTopColor: 'rgba(255,255,255,0.05)',
-    borderTopWidth: 1,
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 10,
+    height: 58,
+    paddingBottom: 8,
+    paddingTop: 8,
+    borderRadius: 18,
+    backgroundColor: 'rgba(20,20,20,0.92)',
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 16,
   },
 });
